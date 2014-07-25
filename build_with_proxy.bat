@@ -1,0 +1,1 @@
+build -Dhttp.proxyHost=proxy.prv -Dhttp.proxyPort=80

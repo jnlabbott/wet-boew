@@ -24,20 +24,25 @@
 				opts,
 				overrides;
 
+			var largeTable = (elm.find('tr').length - 1) > 10;
+
 			//Defaults
 			opts = {
 				aaSorting:[[1, 'asc']],
 				aColumns : [],
-				aLengthMenu : [10, 25, 50, 100],
+				aLengthMenu : largeTable ? [10, 25, 50, 100] : [],
 				aMobileColumns : false,
 				bInfo: true,
-				bPaginate : true,
-				bSearch : true,
+				bPaginate: true && largeTable,
+				bProcessing: false,
+				bServerSide: false,
+				bSearch: true && largeTable,
 				bSort : true,
 				bStateSave: false,
 				bVisible : true,
 				bZebra : false,
 				iDisplayLength: 10,
+				sAjaxSource: '',
 				sPaginationType: 'two_button'
 			};
 

@@ -510,6 +510,11 @@
 					//
 					// Data Table and Graph Orientation
 					//
+					
+					orientation: 'vertical', // which direction to draw the chart
+					'orientation-typeof': 'string',
+					'orientation-autocreate': true,
+					
 					parsedirection: 'x', // which direction to parse the table data
 					'parsedirection-typeof': 'string',
 					'parsedirection-autocreate': true,
@@ -1644,6 +1649,41 @@
 					plotParameter.yaxis = {};
 				}
 				plotParameter.yaxis.ticks = options.steps;
+			}
+			
+			if (options.orientation) {
+				if (options.orientation === 'horizontal') {
+					plotParameter.series = { 
+											bars: { 
+													horizontal: true,
+													lineWidth: 0,
+													fillColor: '#680000'
+												}
+											};
+					if (!plotParameter.yaxis) {
+						plotParameter.yaxis = {};
+					}
+					plotParameter.yaxis.ticks = plotParameter.xaxis.ticks;
+					plotParameter.yaxis.min = -1;
+					plotParameter.yaxis.max = 2;					
+					plotParameter.xaxis.ticks = null;
+					var data = allSeries[0].data;
+					var series;
+					var maxX = 0;
+					//reverse data
+					for (series in data){
+						var s = data[series];
+						var tmp = s[1];
+						s[1] = s[0];
+						s[0] = tmp;
+						if (tmp > maxX) {
+							maxX = tmp;
+						}
+						
+					}
+					plotParameter.xaxis.max = maxX*1.1;
+					//plotParameter.xaxis.tickSize = maxX*1.1/10;
+				}
 			}
 
 			$.plot($placeHolder, allSeries, plotParameter);

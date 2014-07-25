@@ -90,7 +90,7 @@
 					plugins: "pagebreak,textcolor,table,hr,link,preview,searchreplace,print,paste,visualchars,nonbreaking,template,wordcount,code,contextmenu", 
 					menubar: opts.bShowMenuBar ? menuBar.trim() : false,	
 					statusbar: opts.bShowStatusBar,
-					toolbar: opts.bShowToolBar ? toolBar + '" | undo redo | forecolor backcolor | bold italic underline strikethrough | outdent alignleft aligncenter alignright alignjustify indent | bullist numlist hr |",' : false,
+					toolbar: opts.bShowToolBar ? toolBar + '" | undo redo | fontsizeselect forecolor backcolor | bold italic underline strikethrough | outdent alignleft aligncenter alignright alignjustify indent | bullist numlist hr |",' : false,
 					contextmenu: 'undo redo | cut copy paste |',
 					height: opts.iHeight,
 					width: opts.iWidth,
@@ -133,4 +133,4 @@
 	};
 	window.pe = _pe;
 	return _pe;
-}(jQuery));
+} (jQuery));

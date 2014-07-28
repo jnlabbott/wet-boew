@@ -133,31 +133,35 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
 							<h1 id="wb-cont" class=wet-boew-prettify all-pre">Notification Popup</h1>
 							
 							<ul class="button-group">
-								<li><a href="../../docs/ref/slideout/slideout-en.html" class="button">Documentation</a></li>
-								<li><a href="https://github.com/wet-boew/wet-boew/issues/new" class="button">Questions or comments?</a></li>
+								<li><a href="" class="button">Documentation</a></li>
+								<li><a href="" class="button">Questions or comments?</a></li>
 							</ul>
 							
 							<h2 id="cn_ed2">Overview</h2>
 
 							<p>The Notification Popup currently uses <a href="https://github.com/CodeSeven/toastr">Toastr</a> to provide a popup notification mechanism.</p>
 							
-							<h2 id="cn_ed2">Example</h2>
+							<h2 id="cn_ed2">Examples</h2>
 							
 							<p>
-								<a href="#" class="button" onclick="myalert('Great, that was a success!')">Success Notification</a>
-								<a href="#" class="button" onclick="myalert('The following items were updated:<ul><li>Item 1</li><li>Item 2</li></ul>')">Success Notification with HTML</a>
+								<a href="#" class="button" onclick="myalert('success', 'Woohoo!', 'Great, that was a success!')">Success Notification</a>
+								<a href="#" class="button" onclick="myalert('alert', 'Be Alert', 'Be be on alert that a suspicious person is being monitored in on the first floor.')">Alert Notification</a>
+								<a href="#" class="button" onclick="myalert('error', 'Error in Sector 7.', 'There was a error in sector 7-G, please be advised that this area is to be avoided.')">Error Notification</a>
+								<a href="#" class="button" onclick="myalert('info', 'Wikipedia', 'This is not the information you were looking for.')">Info Notification</a>
+								
+								<a href="#" class="button" onclick="myalert('success', 'Title', 'The following items were updated:<ul><li>Item 1</li><li>Item 2</li></ul>')">Success Notification with HTML</a>
 							</p>
 							
 							<h2 id="cn_ed2">Usage</h2>
-							<p>The notification plugin must first be initalized by called the <code>pe.notify_init()</code> method on or after document ready.</p>
+							<p>The notification plugin must first be initialized by called the <code>pe.notify_init()</code> method on or after document ready.</p>
 							<p>For example:</p>
 <pre class="prettyprint" ><code>$(function() {
   pe.notify_init();
 });</code></pre>
 
-							<p>To display a popup in response to an event call the <code>pe.notify(message)</code> function:</p>
-<pre class="prettyprint" ><code>pe.notify('Data Saved Successfully.');</code></pre>							
-                            <p>For example, say you wanted to display a notification popup after a click event that updates some information through AJAX:</p>
+							<p>To display a popup in response to an event call the <code>pe.notify(sType, STitle, sMessage)</code> function with 'sTypes' being a string type of notification.</p> <p>Currently supported types are:</strong> Success, Alert, Info and Error.</p>
+							<pre class="prettyprint" ><code>pe.notify('success', 'Woohoo!', 'Great, that was a success!');</code></pre>	
+                            <p>For example, say you wanted to display a success notification popup after a click event that updates some information through AJAX:</p>
 <div>	
 <p>						
 <pre class="prettyprint linenums"><code>&lt;a href="#" class="button" onclick="update()">Save Changes&lt;/a&gt;
@@ -168,7 +172,7 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
     // do some update activity
  
     if updateCompleted
-      pe.notify('Update Completed.');
+      pe.notify('success', '', 'Update Completed.');
    }
 &lt;/script&gt;
 </code></pre></p>						</div>
@@ -176,7 +180,7 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
 							
 							
 							<dl id="wet-date-mod" role="contentinfo">
-                                <dt>Date modified:</dt><dd><span><time>2013-04-11</time></span></dd>
+                                <dt>Date modified:</dt><dd><span><time>2014-07-28</time></span></dd>
                             </dl>
                             <div class="clear">
                             </div>
@@ -259,32 +263,10 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
         <!-- CustomScriptsStart -->
         <!-- CustomScriptsEnd -->
 		
-<script type="text/javascript">
-	function noMatchFound(){
-        alert("@Labels.RichText_GlossaryNoMatchFound" + ": " + tinyMCE.activeEditor.selection.getContent() + ".");
-    }
-    //This function is used to create and open the window for the insert glossary button / menu item
-    function insertGlossaryWindow(){
-		tinyMCE.activeEditor.windowManager.open({
-            title: '@Labels.RichText_GlossaryMenuText',
-            height : 600,
-            width : 500,
-            body: [
-                { type: 'textbox', name: 'e_word', label: '@Labels.RichText_GlossaryEnglishWordToInsert', id: 'id-word-E' },
-                { type: 'textbox', name: 'f_word', label: '@Labels.RichText_GlossaryFrenchWordToInsert', id: 'id-word-F' },
-                { type: 'textbox', multiline: true, name: 'e_desc', label: '@Labels.RichText_GlossaryDescEnglish', id: 'id-desc-E', minHeight: 200 },
-                { type: 'textbox', multiline: true, name: 'f_desc', label: '@Labels.RichText_GlossaryDescFrench', id: 'id-desc-F', minHeight: 200 },
-            ],
-            onsubmit: function (e) {
-				alert("NO");
-                //ajaxInsertGlossarySubmit(ed, e);
-            }
-        });
-    }
-	
-	function myalert(message)
+<script type="text/javascript">	
+	function myalert(type, title, message, position)
 	{
-		pe.notify(message);
+		pe.notify(type, title, message, position);
 	}
 	
 	$(function() {

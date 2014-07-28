@@ -2996,7 +2996,48 @@
 			}
 			pe.resizeutil.init();
 			pe.wb_load({'plugins': plugins, 'checkdom': true, 'polycheckdom': true}, loading_finished);
-		}
+		},
+		/** HIFIS 4 Custom Start */
+		/**
+		* Initializes the notification plug-in.
+		* @memberof pe
+		* @function
+		* @return {void}
+		* @todo move to a worker and initiate by decorating an element on a page that should allow notifications popups.
+		*/		
+		notify_init: function ()
+		{
+			pe.wb_load({'dep': ['toastr']});			
+		},
+		/**
+		* Triggers the notification plug-in
+		* @memberof pe
+		* @function
+		* @param message: the message to display, may include HTML mark-up.
+		* @return {void}
+		* @todo the options code should move to a worker and use data attribute to set options.
+		*       though we still have the issue of dependency specific reference.
+		*/
+		notify: function (message)
+		{	
+			toastr.options = {
+				"closeButton": true,
+				"debug": false,
+				"positionClass": "toast-top-right",
+				"onclick": null,
+				"showDuration": "10",
+				"hideDuration": "1000",
+				"timeOut": "15000",
+				"extendedTimeOut": "1000",
+				"showEasing": "swing",
+				"hideEasing": "linear",
+				"showMethod": "fadeIn",
+				"hideMethod": "fadeOut"
+			};
+			
+			toastr.success(message);
+		},
+		/** HIFIS 4 Custom End */
 	};
 	/* window binding */
 	window.pe = $.extend(true, pe, _pe);

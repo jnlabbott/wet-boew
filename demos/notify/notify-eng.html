@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <!-- Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
 wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licence-fra.html -->
-    <title>Form validation - Working examples - Web Experience Toolkit&#160;(WET)</title>
+    <title>Notification Popup - Working examples - Web Experience Toolkit&#160;(WET)</title>
     <link rel="shortcut icon" href="../../dist/theme-wet-boew/images/favicon.ico" />
     <meta name="description" content="English description / Description en anglais" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -117,7 +117,7 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
                                 <ol>
                                     <li><a href="../../index-eng.html">Home</a></li>
                                     <li><a href="../index-eng.html">Working examples</a></li>
-                                    <li>Chosen</li>
+                                    <li>Notify</li>
                                 </ol>
                             </div>
                         </div>
@@ -128,23 +128,54 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
         <div id="wb-core">
             <div id="wb-core-in" class="equalize">
                 <div id="wb-main" role="main">
-                    <div id="wb-main-in">
+                    <div id="wb-main-in>
                         <!-- MainContentStart -->
-							<h1 id="wb-cont">TinyMCE Editor</h1>
+							<h1 id="wb-cont" class=wet-boew-prettify all-pre">Notification Popup</h1>
 							
-							<textarea id="editbox" class="wet-boew-editor" data-wet-boew='{"iHeight": 175, "bFileMenu": false, "aaaaCustomButton": [["test1", "desc", "stuff","insertGlossaryWindow",], ["test2", "test callback", "test callback","noMatchFound",], ["test3", "test callback", "test callback","insertGlossaryWindow",], ["test4", "test callback", "test callback","noMatchFound",]]}'></textarea>
+							<ul class="button-group">
+								<li><a href="../../docs/ref/slideout/slideout-en.html" class="button">Documentation</a></li>
+								<li><a href="https://github.com/wet-boew/wet-boew/issues/new" class="button">Questions or comments?</a></li>
+							</ul>
 							
-							<br />
-							<br />
-								
-							<textarea id="editbox2" class="wet-boew-editor" data-wet-boew='{"iHeight": 175, "bFileMenu": false, "aaaaCustomButton": [["test3", "desc", "stuff","noMatchFound",], ["test2", "test callback", "test callback","insertGlossaryWindow",]]}'></textarea>
+							<h2 id="cn_ed2">Overview</h2>
+
+							<p>The Notification Popup currently uses <a href="https://github.com/CodeSeven/toastr">Toastr</a> to provide a popup notification mechanism.</p>
 							
-							<br />
-							<br />
+							<h2 id="cn_ed2">Example</h2>
 							
-					
-								
-                            <dl id="wet-date-mod" role="contentinfo">
+							<p>
+								<a href="#" class="button" onclick="myalert('Great, that was a success!')">Success Notification</a>
+								<a href="#" class="button" onclick="myalert('The following items were updated:<ul><li>Item 1</li><li>Item 2</li></ul>')">Success Notification with HTML</a>
+							</p>
+							
+							<h2 id="cn_ed2">Usage</h2>
+							<p>The notification plugin must first be initalized by called the <code>pe.notify_init()</code> method on or after document ready.</p>
+							<p>For example:</p>
+<pre class="prettyprint" ><code>$(function() {
+  pe.notify_init();
+});</code></pre>
+
+							<p>To display a popup in response to an event call the <code>pe.notify(message)</code> function:</p>
+<pre class="prettyprint" ><code>pe.notify('Data Saved Successfully.');</code></pre>							
+                            <p>For example, say you wanted to display a notification popup after a click event that updates some information through AJAX:</p>
+<div>	
+<p>						
+<pre class="prettyprint linenums"><code>&lt;a href="#" class="button" onclick="update()">Save Changes&lt;/a&gt;
+&lt;script type="text/javascript"&gt;
+  function update()
+  {
+    var updateCompleted = false;
+    // do some update activity
+ 
+    if updateCompleted
+      pe.notify('Update Completed.');
+   }
+&lt;/script&gt;
+</code></pre></p>						</div>
+
+							
+							
+							<dl id="wet-date-mod" role="contentinfo">
                                 <dt>Date modified:</dt><dd><span><time>2013-04-11</time></span></dd>
                             </dl>
                             <div class="clear">
@@ -250,6 +281,15 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
             }
         });
     }
+	
+	function myalert(message)
+	{
+		pe.notify(message);
+	}
+	
+	$(function() {
+		pe.notify_init();
+	});
 </script>
 
 </body>

@@ -260,6 +260,8 @@
 			<fileset dir="${dist.dir}">
 				<include name="**/*.css" />
 				<exclude name="**/*-min.css" />
+				<exclude name="**/*.min.css" />
+				<exclude name="**/dependencies/skins/lightgray/content.inline.min.css"/>
 			</fileset>
 			<globmapper from="*.css" to="*-min.css"/>
 		</move>

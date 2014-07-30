@@ -50,11 +50,12 @@
 				xhrError : _pe.dic.get('%lb-xhr-error'),
 				imgError : _pe.dic.get('%lb-img-error'),
 				maxWidth : '100%',
-				maxHeight : '100%',
+				maxHeight : '100%',				
 				slideshowStart : _pe.dic.get('%start') + slideshowText,
 				slideshowStop : _pe.dic.get('%stop') + slideshowText,
 				slideshow : false,
 				slideshowAuto : false,
+				opacity : 0.85, // HIFIS Added
 				onComplete : function () {
 					var currentText = $lbCurrent.text(),
 						titleText = $lbTitle.text(),

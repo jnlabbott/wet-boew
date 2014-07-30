@@ -15,7 +15,8 @@
 		type: 'plugin',
 		depends: ['jquery.jstree'],
 		_exec: function (elm) {
-			var opts, overrides;
+			var opts,
+				overrides;
 
 			//Defaults
 			opts = {
@@ -38,10 +39,19 @@
 						"dots" : true,
 						"icons": opts.bDisplayIcons
 					},
+					"core" : { "animation" : 0 },
+					"types" : {
+						"types": {
+						"disabled" : { 
+							  "check_node" : false, 
+							  "uncheck_node" : false
+							} 
+						}
+					},
 					"checkbox" : {
 						"keep_selected_style" : false
 					},
-					"plugins": ["themes","ui","html_data", "checkbox"] 
+					"plugins": ["themes","ui","html_data", "checkbox", "types"] 
 				})
 			   ;
 			}
@@ -61,8 +71,6 @@
 
 				var node = data.rslt.obj;
 
-				node.find(".loaderImg").show("slow");
-
 				window.wetTreeCheckEvent(event, data, true);												 
 
 			 });
@@ -71,23 +79,28 @@
 
 				var node = data.rslt.obj;
 
-				node.find(".loaderImg").show("slow");
-
 				window.wetTreeCheckEvent(event, data, false)
 				
 			 });
 				
 			elm.bind("loaded.jstree", function (event, data) {
-//													  //Onload this will loop through each li item with the that data attr and add the jstree-checked class
+			   //Onload this will loop through each li item with the that data attr and add the jstree-checked class
 				$('.wet-boew-tree').find('[data-wet-tree-checked="true"]').each(function () {
 						$(this).removeClass('jstree-unchecked').addClass('jstree-checked');
+				});
+				//Onload this will loop through each li item with the that data attr and add the jstree disabled type
+				$('.wet-boew-tree').find('[data-wet-tree-checked="disabled"]').each(function () {
+						$(this).removeClass('jstree-unchecked').addClass('jstree-checked').addClass('jstree-disabled').addClass('forced-opacity');
+				});
+				//Onload this will loop through each li item with the that data attr and add the jstree unclickable type
+				$('.wet-boew-tree').find('[data-wet-tree-checked="nonclick"]').each(function () {
+						$(this).addClass('jstree-disabled');
 				});
 				//Will expand all nodes~
 				if(opts.bOpenAllNodes)
 				{
 					$(this).jstree("open_all");
 				}
-
 			});
 														
 		} // end of exec

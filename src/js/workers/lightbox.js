@@ -55,6 +55,7 @@
 				slideshowStop : _pe.dic.get('%stop') + slideshowText,
 				slideshow : false,
 				slideshowAuto : false,
+				opacity : 0.85, //HIFIS Customization
 				onComplete : function () {
 					var currentText = $lbCurrent.text(),
 						titleText = $lbTitle.text(),

@@ -3016,7 +3016,7 @@
 		* @param message: the message to display, may include HTML mark-up.
 		* @return {void}
 		* @todo the options code should move to a worker and use data attribute to set options.
-		*       though we still have the issue of dependency specific reference.
+		*		though we still have the issue of dependency specific reference.
 		*/
 		notify: function (message)
 		{	

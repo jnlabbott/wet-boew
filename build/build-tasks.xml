@@ -148,6 +148,7 @@
 			<exclude name="dependencies/xregexp.js"/>
 			<exclude name="dependencies/openlayers.js"/>
 			<exclude name="dependencies/proj4js.js"/>
+			<exclude name="dependencies/jstree.js"/>
 		</jshint>
 	</target>
 

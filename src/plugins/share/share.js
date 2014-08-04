@@ -17,6 +17,7 @@ var pluginName = "wb-share",
 	selector = "." + pluginName,
 	initedClass = pluginName + "-inited",
 	initEvent = "wb-init" + selector,
+	readyEvent = "wb-ready" + selector,
 	shareLink = "shr-lnk",
 	panelCount = 0,
 	$document = wb.doc,
@@ -29,7 +30,7 @@ var pluginName = "wb-share",
 	defaults = {
 		hdLvl: "h2",
 
-		// Supported types are: "page" and "video"
+		// Supported types are: "page", "video" and "audio"
 		type: "page",
 
 		// For custom types
@@ -149,6 +150,7 @@ var pluginName = "wb-share",
 					shareText: i18n( "shr-txt" ),
 					page: i18n( "shr-pg" ),
 					video: i18n( "shr-vid" ),
+					audio: i18n( "shr-aud" ),
 					disclaimer: i18n( "shr-disc" ),
 					email: i18n( "email" )
 				};
@@ -241,6 +243,8 @@ var pluginName = "wb-share",
 			$share
 				.trigger( initEvent )
 				.trigger( "wb-init.wb-lbx" );
+
+			$elm.trigger( readyEvent );
 		}
 	};
 

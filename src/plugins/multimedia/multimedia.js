@@ -13,6 +13,7 @@ var pluginName = "wb-mltmd",
 	selector = "." + pluginName,
 	initedClass = pluginName + "-inited",
 	initEvent = "wb-init" + selector,
+	readyEvent = "wb-ready" + selector,
 	uniqueCount = 0,
 	template,
 	i18n, i18nText,
@@ -608,6 +609,8 @@ $document.on( initializedEvent, selector, function( event ) {
 		} else {
 			$this.trigger( fallbackEvent );
 		}
+
+		$this.trigger( readyEvent );
 	}
 });
 
@@ -776,6 +779,17 @@ $document.on( renderUIEvent, selector, function( event, type ) {
 		// Load the slider polyfill if needed
 		$this.find( "input[type='range']" ).trigger( "wb-init.wb-slider" );
 
+		// Create the share widgets if needed
+		// TODO: Remove .parent() when getting rid of the overlay
+		if ( data.shareUrl !== undef ) {
+			$share = $( "<div class='wb-share' data-wb-share=\'{\"type\": \"" +
+				( type === "audio" ? type : "video" ) + "\", \"title\": \"" +
+				data.title + "\", \"url\": \"" + data.shareUrl +
+				"\", \"pnlId\": \"" + data.id + "-shr\"}\'></div>" );
+			$media.parent().before( $share );
+			wb.add( $share );
+		}
+
 		if ( data.captions === undef ) {
 			return 1;
 		}
@@ -785,14 +799,6 @@ $document.on( renderUIEvent, selector, function( event, type ) {
 			loadCaptionsExternal( $player, captionsUrl.absolute );
 		} else {
 			loadCaptionsInternal( $player, $( captionsUrl.hash ) );
-		}
-
-		// Create the share widgets if needed
-		// TODO: Remove .parent() when getting rid of the overlay
-		if ( data.shareUrl !== undef ) {
-			$share = $( "<div class='wb-share' data-wb-share=\'{\"type\": \"video\", \"title\": \"" + data.title + "\", \"url\": \"" + data.shareUrl + "\", \"pnlId\": \"" + data.id + "-shr\"}\'></div>" );
-			$media.parent().before( $share );
-			wb.add( $share );
 		}
 	}
 });

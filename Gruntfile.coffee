@@ -68,7 +68,7 @@ module.exports = (grunt) ->
 		"Run tests on SauceLabs. Currently only for Travis builds"
 		[
 			"pre-mocha"
-			"saucelabs-custom"
+			"saucelabs-mocha"
 		]
 	)
 
@@ -239,20 +239,23 @@ module.exports = (grunt) ->
 		glyphiconsBanner: "/*!\n * GLYPHICONS Halflings for Twitter Bootstrap by GLYPHICONS.com | Licensed under http://www.apache.org/licenses/LICENSE-2.0\n */"
 		i18nGDocsID: "0AqLc8VEIumBwdDNud1M2Wi1tb0RUSXJxSGp4eXI0ZXc"
 		i18nGDocsSheet: 1
-		mochaUrls: grunt.file.expand(
-						"src/test.js"
-						"src/**/test.js"
-						# Tests failing because they depend on demo page
-						"!src/plugins/data-inview/test.js"
-						"!src/other/feedback/test.js"
+		mochaUrls: grunt.file.expand({cwd: "src"}
+						"test.js"
+						"**/test.js"
 					).map( ( src ) ->
 						src = src.replace( /\\/g , "/" ) #" This is to escape a Sublime text regex issue in the replace
-						src = src.replace( "src/" , "" )
 						src = src.replace( "polyfills/" , "" )
 						src = src.replace( "plugins/" , "" )
 						src = src.replace( "other/" , "" )
 						src = src.replace( ".js" , "" )
-						return src
+						src
+					).sort( ( a, b) ->
+						if a is "test"
+								-1
+							else if a > b
+								1
+							else
+								-1
 					)
 
 		# Task configuration.
@@ -1184,7 +1187,7 @@ module.exports = (grunt) ->
 					reporter: "Spec"
 					urls: ["http://localhost:8000/dist/unmin/test/test.html"]
 
-		"saucelabs-custom":
+		"saucelabs-mocha":
 			all:
 				options:
 					urls: ["http://localhost:8000/dist/unmin/test/test.html"]
@@ -1196,6 +1199,8 @@ module.exports = (grunt) ->
 						process.env.TRAVIS_BRANCH
 						process.env.TRAVIS_COMMIT
 					]
+					sauceConfig:
+						'video-upload-on-pass': false
 
 		"gh-pages":
 			options:
@@ -1241,7 +1246,7 @@ module.exports = (grunt) ->
 	@loadNpmTasks "grunt-htmlcompressor"
 	@loadNpmTasks "grunt-i18n-csv"
 	@loadNpmTasks "grunt-imagine"
-	@loadNpmTasks "grunt-jscs-checker"
+	@loadNpmTasks "grunt-jscs"
 	@loadNpmTasks "grunt-mocha"
 	@loadNpmTasks "grunt-modernizr"
 	@loadNpmTasks "grunt-sass"

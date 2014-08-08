@@ -6,14 +6,14 @@
 	"categoryfile": "plugins",
 	"description": "Dynamically stacks multiple sections of content, transforming them into a tabbed interface.",
 	"altLangPrefix": "tabs",
-	"dateModified": "2014-08-01"
+	"dateModified": "2014-08-06"
 }
 ---
 <span class="wb-prettify all-pre hide"></span>
 
 <section>
 	<h2>Purpose</h2>
-	<p>Dynamically stacks multiple sections of content, transforming them into a tabbed interface.</p>
+	<p>Dynamically stacks multiple sections of content, transforming them into a tabbed interface. Implements the <a href="http://www.w3.org/TR/wai-aria-practices/#tabpanel">WAI-ARIA tab panel design pattern</a> for large screens and the <a href="http://www.w3.org/TR/wai-aria-practices/#accordion">WAI-ARIA accordion design pattern</a> for small screens.</p>
 </section>
 
 <!--
@@ -286,6 +286,66 @@
 					</dl>
 				</td>
 			</tr>
+			<tr>
+				<td>Exclude play (<code>data-wb-tabs</code>) (v4.0.5+)</td>
+				<td>Exclude the play button from the carousel controls through the <code>excludePlay</code> property of the <code>data-wb-tabs</code> attribute.</td>
+				<td>Add the <code>data-wb-tabs</code> attribute to the element with <code>class="wb-tabs"</code> and include the <code>excludePlay</code> property with <code>true</code> for the value.
+					<pre><code>data-wb-tabs='{"excludePlay": true}'</code></pre>
+				</td>
+				<td>
+					<dl>
+						<dt><code>false</code> (default):</dt>
+						<dd>Play button is <strong>included in</strong> the carousel controls.</dd>
+						<dt><code>true</code>:</dt>
+						<dd>Play button is <strong>excluded from</strong> the carousel controls.</dd>
+					</dl>
+				</td>
+			</tr>
+			<tr>
+				<td>Exclude play (<code>exclude-play</code>) (v4.0.5+)</td>
+				<td>Exclude the play button from the carousel controls through the <code>exclude-play</code> class.</td>
+				<td>Add <code>exclude-play</code> after the <code>wb-tabs</code> class.
+					<pre><code>class="wb-tabs exclude-play"</code></pre>
+				</td>
+				<td>
+					<dl>
+						<dt>None (default):</dt>
+						<dd>Play button is <strong>included in</strong> the carousel controls.</dd>
+						<dt><code>playing</code></dt>
+						<dd>Play button is <strong>excluded from</strong> the carousel controls.</dd>
+					</dl>
+				</td>
+			</tr>
+			<tr>
+				<td>Play on page load (<code>data-wb-tabs</code>) (v4.0.5+)</td>
+				<td>Play the carousel on page load through the <code>playing</code> property of the <code>data-wb-tabs</code> attribute.<br /><strong>Warning:</strong> Playing on page load can be distracting and cause usability issues for some users.<br /><strong>Note:</strong> Playing will be disabled if the play button is excluded from the carousel controls.</td>
+				<td>Add the <code>data-wb-tabs</code> attribute to the element with <code>class="wb-tabs"</code> and include the <code>playing</code> property with <code>true</code> for the value.
+					<pre><code>data-wb-tabs='{"playing": true}'</code></pre>
+				</td>
+				<td>
+					<dl>
+						<dt><code>false</code> (default):</dt>
+						<dd>Carousel <strong>does not play</strong> on page load.</dd>
+						<dt><code>true</code>:</dt>
+						<dd>Carousel <strong>plays</strong> on page load.</dd>
+					</dl>
+				</td>
+			</tr>
+			<tr>
+				<td>Play on page load (<code>playing</code>)</td>
+				<td>Play the carousel on page load through the <code>playing</code> class.<br /><strong>Warning:</strong> Playing on page load can be distracting and cause usability issues for some users.<br /><strong>Note:</strong> Playing will be disabled if the play button is excluded from the carousel controls.</td>
+				<td>Add <code>playing</code> after the <code>wb-tabs</code> class.
+					<pre><code>class="wb-tabs playing"</code></pre>
+				</td>
+				<td>
+					<dl>
+						<dt>None (default):</dt>
+						<dd>Carousel <strong>does not play</strong> on page load.</dd>
+						<dt><code>playing</code></dt>
+						<dd>Carousel <strong>plays</strong> on page load.</dd>
+					</dl>
+				</td>
+			</tr>
 		</tbody>
 	</table>
 </section>
@@ -302,8 +362,8 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td>wb-init.wb-tabs</td>
-				<td>Triggered manually (e.g., <code>$elm.trigger( "wb-init.wb-tabs" );</code>).</td>
+				<td><code>wb-init.wb-tabs</code></td>
+				<td>Triggered manually (e.g., <code>$( ".wb-tabs" ).trigger( "wb-init.wb-tabs" );</code>).</td>
 				<td>Used to manually initialize the Tabbed interface plugin. <strong>Note:</strong> The Tabbed interface plugin will be initialized automatically unless the required markup is added after the page has already loaded.</td>
 			</tr>
 			<tr>
@@ -312,7 +372,25 @@
 				<td>Used to identify which tabbed interface or carousel was initialized (target of the event)
 					<pre><code>$( document ).on( "wb-ready.wb-tabs", ".wb-tabs", function( event ) {
 });</code></pre>
-					<pre><code>$elm.on( "wb-ready.wb-tabs", function( event ) {
+					<pre><code>$( ".wb-tabs" ).on( "wb-ready.wb-tabs", function( event ) {
+});</code></pre>
+				</td>
+			</tr>
+			<tr>
+				<td><code>wb-updated.wb-tabs</code> (v4.0.5+)</td>
+				<td>Triggered automatically after a tabbed interface/carousel was updated (visible tab panel changed).</td>
+				<td>Used to identify which tabbed inteface/carousel was updated (target of the event) and to pass along the newly visible panel (as a jQuery object).
+					<pre><code>$( document ).on( "wb-updated.wb-tabs", ".wb-tabs", function( event, $newPanel ) {
+});</code></pre>
+					<pre><code>$( ".wb-tabs" ).on( "wb-updated.wb-tabs", function( event, $newPanel ) {
+});</code></pre>
+				</td>
+			</tr>
+			<tr>
+				<td><code>wb-ready.wb</code> (v4.0.5+)</td>
+				<td>Triggered automatically when WET has finished loading and executing.</td>
+				<td>Used to identify when all WET plugins and polyfills have finished loading and executing. 
+					<pre><code>$( document ).on( "wb-ready.wb", function( event ) {
 });</code></pre>
 				</td>
 			</tr>

@@ -10,105 +10,149 @@
 	"use strict";
 	
 	var _pe = window.pe || {
-		fn: {}
+	fn: {}
 	}; /* local reference */
-	
+ 
 	_pe.fn.tree = {
 		type: 'plugin',
 		depends: ['jstree'],
 		_exec: function (elm) {
 			var opts,
 			overrides;
-
+ 
 			//Defaults
 			opts = {
-				bCheckBoxes: false,
-				bDisplayIcons: false,
-				bOpenAllNodes: false,
-				bDisableAllNodes: false,
-
-				bCallBackFunction: "wetTreeCheckEvent"
-			};
-
-			// Class-based overrides - use undefined where no override of defaults or settings.js should occur
-			overrides = {};
-
-			// Extend the defaults with settings passed through settings.js (wet_boew_chosen), class-based overrides and the data-wet-boew attribute
-			$.extend(opts, (typeof wet_boew_jstree !== 'undefined' ? wet_boew_jstree : {}), overrides, _pe.data.getData(elm, 'wet-boew'));
-
-			if (opts.bCheckBoxes)
-			{
-				elm.jstree({ 
-					"core": {
-						"themes":{
-							"icons": opts.bDisplayIcons,
-							"stripes" : true
+			bCheckBoxes: false,
+			bDisplayIcons: false,
+			bOpenAllNodes: false,
+			bDisableAllNodes: false,
+			bDNDCallBackFunction: "move_node",
+ 
+			bCallBackFunction: "wetTreeCheckEvent"
+		};
+ 
+		// Class-based overrides - use undefined where no override of defaults or settings.js should occur
+		overrides = {};
+ 
+		// Extend the defaults with settings passed through settings.js (wet_boew_chosen), class-based overrides and the data-wet-boew attribute
+		$.extend(opts, (typeof wet_boew_jstree !== 'undefined' ? wet_boew_jstree : {}), overrides, _pe.data.getData(elm, 'wet-boew'));
+ 
+		if (opts.bCheckBoxes)
+		{
+			elm.jstree({
+				"core": {
+					"themes":{
+						"icons": opts.bDisplayIcons,
+						"stripes" : true,
+						"variant": "large",
+						"responsive": true
+					},
+					"check_callback" : function (operation, node, node_parent, node_position, more) {
+						// operation can be 'create_node', 'rename_node', 'delete_node', 'move_node' or 'copy_node'
+						// in case of 'rename_node' node_position is filled with the new node name
+ 
+						if( operation === 'move_node')
+						{
+							var fn = window[opts.bDNDCallBackFunction];
+ 
+							if(typeof fn === 'function') {
+								return fn(operation, node, node_parent, node_position, more);
+							}
 						}
-					},
-					"checkbox" : {
-						"keep_selected_style" : false
-					},
-					"search" : {
-						"case_insensitive" : false, 
-					},
-					"plugins": ["themes","ui","html_data", "checkbox", "sort", "search", "types"] 
-				});
-			}
-			else
-			{
-				elm.jstree({ 
-					"core": {
-						"themes":{
-							"icons":opts.bDisplayIcons
+						else
+						{
+							return false;
 						}
+					}//this closes check_callback
+				},
+				"checkbox" : {
+					"keep_selected_style" : false
+				},
+				
+				"search" : {
+					"case_insensitive" : false,
+				},
+				"plugins": ["themes","ui","html_data", "checkbox", "sort", "search", "wholerow", "dnd"]
+			});
+		}
+		else
+		{
+			elm.jstree({
+				"core": {
+					"themes":{
+						"icons":opts.bDisplayIcons,
+						"stripes": true,
+						"variant": "large",
+						"responsive": true
 					},
-					"plugins": ["themes","ui","html_data"] 
-				});
-			}
-
-			// Will expand all nodes~
-			if(!opts.bOpenAllNodes)
-			{
-				elm.jstree("close_all");
-			}
-
-			elm.on("select_node.jstree", function (event, data) {
-			
-				var fn = window[opts.bCallBackFunction]; 
-				
-				if(typeof fn === 'function') {
-					fn(event, data, true);
-				}	
-				else {
-					alert('The callback function was not implemented correctly... You can implement this function by assigning a function name to bCallBackFunction property. For Example: \"bCallBackFunction\": \"ACallBackFunctionName\"');
-				}										 
+					"check_callback" : function (operation, node, node_parent, node_position, more) {
+						// operation can be 'create_node', 'rename_node', 'delete_node', 'move_node' or 'copy_node'
+						// in case of 'rename_node' node_position is filled with the new node name
+ 
+						if( operation === 'move_node')
+						{
+							var fn = window[opts.bDNDCallBackFunction];
+ 
+							if(typeof fn === 'function') {
+								return fn(operation, node, node_parent, node_position, more);
+							}
+						}
+						else
+						{
+							return false;
+						}
+					} //this closes check_callback
+				},
+				"search" : {
+					"case_insensitive" : false,
+				},
+				"plugins": ["themes","ui","html_data", "sort", "search", "wholerow", "dnd"]
 			});
-
-			elm.on("deselect_node.jstree", function (event, data) {
-			
-				var fn = window[opts.bCallBackFunction]; 
-				
-				if(typeof fn === 'function') {
-					fn(event, data, false);
-				}
-				else
-				{
-					alert('The callback function was not implemented correctly... You can implement this function by assigning a function name to bCallBackFunction property. For Example: \"bCallBackFunction\": \"ACallBackFunctionName\"');
-				}	 
-			});
-
-			if(opts.bDisableAllNodes)
-			{
-				elm.on("ready.jstree", function(e, data) {
-					$('.wet-boew-tree a').click(function () { return false; });
-				});
-
-				elm.on("open_node.jstree", function(e, data) {
-					$('.wet-boew-tree a').click(function () { return false; });
-				});
-			}
-
-		} // end of exec
+		}
+ 
+	// Will expand all nodes~
+	if(!opts.bOpenAllNodes)
+	{
+		elm.jstree("close_all");
+	}
+ 
+	elm.on("select_node.jstree", function (event, data) {
+ 
+		var fn = window[opts.bCallBackFunction];
+ 
+		if(typeof fn === 'function') {
+			fn(event, data, true);
+		}	
+		else {
+			//alert('The callback function was not implemented correctly... You can implement this function by assigning a function name to bCallBackFunction property. For Example: \"bCallBackFunction\": \"ACallBackFunctionName\"');
+		}	
+	});
+ 
+	elm.on("deselect_node.jstree", function (event, data) {
+ 
+		var fn = window[opts.bCallBackFunction];
+ 
+		if(typeof fn === 'function') {
+			fn(event, data, false);
+		}
+		else
+		{
+			//alert('The callback function was not implemented correctly... You can implement this function by assigning a function name to bCallBackFunction property. For Example: \"bCallBackFunction\": \"ACallBackFunctionName\"');
+		}	
+	});
+ 
+	if(opts.bDisableAllNodes)
+	{
+		elm.on("ready.jstree", function(e, data) {
+			$('.wet-boew-tree a').click(function () { return false; });
+		});
+ 
+		elm.on("open_node.jstree", function(e, data) {
+			$('.wet-boew-tree a').click(function () { return false; });
+		});
+	}
+ 
+	} // end of exec
 	};
 	window.pe = _pe;
 	return _pe;

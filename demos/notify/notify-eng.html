@@ -32,7 +32,7 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
     <!-- CustomCSSStart -->
     <!-- CustomCSSEnd -->
 </head>
-<body>
+<body class="wet-boew-notifications">
     <div id="wb-body">
         <div id="wb-skip">
             <ul id="wb-tphp">
@@ -153,11 +153,11 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
 							</p>
 							
 							<h2 id="cn_ed2">Usage</h2>
-							<p>The notification plugin must first be initialized by called the <code>pe.notify_init()</code> method on or after document ready.</p>
+							<p>The notification plugin must first be initialized by decorating an element on the page with the <code>wet-boew-notifications</code> class.</p>
 							<p>For example:</p>
-<pre class="prettyprint" ><code>$(function() {
-  pe.notify_init();
-});</code></pre>
+<pre class="prettyprint" ><code>&lt;body class="wet-boew-notifcations"&gt;
+  ...
+&lt;body&gt;</code></pre>
 
 							<p>To display a popup in response to an event call the <code>pe.notify(sType, STitle, sMessage)</code> function with 'sTypes' being a string type of notification.</p> <p>Currently supported types are:</strong> Success, Alert, Info and Error.</p>
 							<pre class="prettyprint" ><code>pe.notify('success', 'Woohoo!', 'Great, that was a success!');</code></pre>	
@@ -268,10 +268,6 @@ wet-boew.github.io/wet-boew/License-eng.html / wet-boew.github.io/wet-boew/Licen
 	{
 		pe.notify(type, title, message, position);
 	}
-	
-	$(function() {
-		pe.notify_init();
-	});
 </script>
 
 </body>

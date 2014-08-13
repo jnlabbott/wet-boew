@@ -204,7 +204,11 @@
 		'%geo-labelselect': '@%geo-labelselect@',
 		/* Disable/enable PE */
 		'%pe-disable': '@%pe-disable@',
-		'%pe-enable': '@%pe-enable@'
+		'%pe-enable': '@%pe-enable@',
+		/* Chosen enhancement */
+		'%chosen-placeholder-single': '@%chosen-placeholder-single@',
+		'%chosen-placeholder-multi': '@%chosen-placeholder-multi@',
+		'%chosen-no-results': '@%chosen-no-results@'
 	};
 	_pe.document.trigger('languageloaded');
 	window.pe = _pe;

@@ -14,9 +14,9 @@
 	_pe.fn.editor = {
 		type: 'plugin',
 		depends: ['tinymce'],
-		mobile: function (elm) {
-			return elm;
-		},
+		//mobile: function (elm) {
+		//	return elm;
+		//},
 		_exec: function (elm) {
 			if (_pe.mobile) {
 				return;
@@ -48,7 +48,7 @@
 				bShowMenuBar : true, //if this is false all menu values above become redundant
 				bShowToolBar : true,
 				bShowStatusBar : true,			
-				sLanguage : pe.language,
+				sLanguage : _pe.language
 			};
 			
 			// Class-based overrides - use undefined where no override of defaults or settings.js should occur

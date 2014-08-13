@@ -27,7 +27,7 @@
 
 			//Defaults
 			opts = {
-				bAllowSingleDeselect: false,
+				bAllowSingleDeselect: true,
 				bDisableSearch: false,
 				iDisableSearchThreshold: 0,
 				bEnableSplitWordSearch: true,

@@ -45,7 +45,7 @@ module.exports = (grunt) ->
 			"assets"
 			"css"
 			"js"
-			"imagemin"
+			#"imagemin"
 		]
 	)
 

@@ -38,7 +38,10 @@
     "proj4": "2.1.0",
     "respond": "1.4.0",
     "selectivizr": "1.0.2",
-    "SideBySideImproved": "https://github.com/pkoltermann/SideBySideImproved.git"
+    "SideBySideImproved": "https://github.com/pkoltermann/SideBySideImproved.git",
+	"toastr": "2.0.3",
+	"jstree": "3.0.3",
+	"chosen": "1.1.0"
   },
   "moduleType": [
     "globals"

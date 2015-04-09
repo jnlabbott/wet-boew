@@ -28,7 +28,7 @@ module.exports = (grunt) ->
 		"Produces the production files"
 		[
 			"checkDependencies"
-			"test"
+			#"test"
 			"build"
 			"minify"
 			"pages:theme"

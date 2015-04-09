@@ -4,7 +4,7 @@
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @pjackson28
  */
-(function( $, window, document, wb ) {
+( function( $, window, document, wb ) {
 "use strict";
 
 /*
@@ -17,9 +17,9 @@ var componentName = "wb-lbx",
 	selector = "." + componentName,
 	initEvent = "wb-init" + selector,
 	setFocusEvent = "setfocus.wb",
+	dependenciesLoadedEvent = "deps-loaded" + selector,
 	extendedGlobal = false,
 	$document = wb.doc,
-	idCount = 0,
 	callbacks, i18n, i18nText,
 
 	/**
@@ -37,143 +37,36 @@ var componentName = "wb-lbx",
 		if ( elm ) {
 			elmId = elm.id;
 
-			// Ensure there is a unique id on the element
-			if ( !elmId ) {
-				elmId = componentName + "-id-" + idCount;
-				idCount += 1;
-				elm.id = elmId;
-			}
+			// Ensure the dependencies are loaded first
+			$document.one( dependenciesLoadedEvent, function() {
+				var elm = document.getElementById( elmId ),
+					$elm = $( elm ),
+					settings = {},
+					firstLink;
 
-			// read the selector node for parameters
+				if ( !elm ) {
+					return;
+				}
 
-			// Only initialize the i18nText and callbacks once
-			if ( !i18nText ) {
-				i18n = wb.i18n;
-				i18nText = {
-					tClose: i18n( "overlay-close" ) + i18n( "space" ) + i18n( "esc-key" ),
-					tLoading: i18n( "load" ),
-					gallery: {
-						tPrev: i18n( "prv-l" ),
-						tNext: i18n( "nxt-r" ),
-						tCounter: i18n( "lb-curr" )
-					},
-					image: {
-						tError: i18n( "lb-img-err" ) + " (<a href=\"url%\">)"
-					},
-					ajax: {
-						tError: i18n( "lb-xhr-err" ) + " (<a href=\"url%\">)"
+				// TODO: Add swipe support
+
+				settings.callbacks = callbacks;
+
+				if ( elm.nodeName.toLowerCase() !== "a" ) {
+					settings.delegate = "a";
+					firstLink = elm.getElementsByTagName( "a" )[ 0 ];
+
+					// Is the element a gallery?
+					if ( elm.className.indexOf( "-gal" ) !== -1 ) {
+						settings.gallery = {
+							enabled: true
+						};
 					}
-				};
+				} else {
+					firstLink = elm;
+				}
 
-				callbacks = {
-					open: function() {
-
-						// TODO: Better if dealt with upstream by Magnific popup
-						var $item = this.currItem,
-							$content = this.contentContainer,
-							$wrap = this.wrap,
-							$buttons = $wrap.find( ".mfp-close, .mfp-arrow" ),
-							len = $buttons.length,
-							i, button, $bottomBar;
-
-						for ( i = 0; i !== len; i += 1 ) {
-							button = $buttons[ i ];
-							button.innerHTML += "<span class='wb-inv'> " + button.title + "</span>";
-						}
-
-						if ( $item.type === "image" ) {
-							$bottomBar = $content.find( ".mfp-bottom-bar" ).attr( "id", "lbx-title" );
-						} else {
-							$content.attr( "role", "document" );
-						}
-
-						$wrap.append( "<span tabindex='0' class='lbx-end wb-inv'></span>" );
-					},
-					change: function() {
-						var $item = this.currItem,
-							$content = this.contentContainer,
-							$el, $bottomBar, $source, $target,
-							description, altTitleId, altTitle;
-
-						if ( $item.type === "image" ) {
-							$el = $item.el;
-							$target = $item.img;
-							$bottomBar = $content.find( ".mfp-bottom-bar" );
-
-							if ( $el ) {
-								$source = $el.find( "img" );
-								$target.attr( "alt", $source.attr( "alt" ) );
-
-								// Replicate aria-describedby if it exists
-								description = $source.attr( "aria-describedby" );
-								if ( description ) {
-									$target.attr( "aria-describedby", description );
-								}
-
-								// Replicate longdesc if it exists
-								description = $source.attr( "longdesc" );
-								if ( description ) {
-									$target.attr( "longdesc", description );
-								}
-
-								// Handle alternate titles
-								altTitleId = $el.attr( "data-title" );
-								if ( altTitleId ) {
-									altTitle = document.getElementById( altTitleId );
-									if ( altTitle !== null ) {
-										$bottomBar.find( ".mfp-title" ).html( altTitle.innerHTML );
-									}
-								}
-							} else {
-								$target.attr( "alt", $bottomBar.find( ".mfp-title" ).html() );
-							}
-						} else {
-							$content
-								.find( ".modal-title, h1" )
-								.first()
-								.attr( "id", "lbx-title" );
-						}
-					}
-				};
-			}
-
-			// Load Magnific Popup dependency and bind the init event handler
-			Modernizr.load({
-				load: "site!deps/jquery.magnific-popup" + wb.getMode() + ".js",
-				complete: function() {
-					var elm = document.getElementById( elmId ),
-						$elm = $( elm ),
-						settings = {},
-						firstLink;
-
-					if ( !elm ) {
-						return;
-					}
-
-					// Set the dependency i18nText only once
-					if ( !extendedGlobal ) {
-						$.extend( true, $.magnificPopup.defaults, i18nText );
-						extendedGlobal = true;
-					}
-
-					// TODO: Add swipe support
-
-					settings.callbacks = callbacks;
-
-					if ( elm.nodeName.toLowerCase() !== "a" ) {
-						settings.delegate = "a";
-						firstLink = elm.getElementsByTagName( "a" )[ 0 ];
-
-						// Is the element a gallery?
-						if ( elm.className.indexOf( "-gal" ) !== -1 ) {
-							settings.gallery = {
-								enabled: true
-							};
-						}
-					} else {
-						firstLink = elm;
-					}
-
+				if ( firstLink ) {
 					if ( firstLink.getAttribute( "href" ).charAt( 0 ) === "#" ) {
 						settings.type = "inline";
 					} else if ( firstLink.className.indexOf( "lbx-iframe" ) !== -1 ) {
@@ -187,22 +80,173 @@ var componentName = "wb-lbx",
 					if ( elm.className.indexOf( "lbx-modal" ) !== -1 ) {
 						settings.modal = true;
 					}
+					if ( elm.className.indexOf( "lbx-ajax" ) !== -1 ) {
+						settings.type = "ajax";
+					}
+					if ( elm.className.indexOf( "lbx-image" ) !== -1 ) {
+						settings.type = "image";
+					}
+					if ( elm.className.indexOf( "lbx-inline" ) !== -1 ) {
+						settings.type = "inline";
+					}
 
-					// Extend the settings with data-wb-lbx then
-					$elm.magnificPopup(
-						$.extend(
-							true,
-							settings,
-							window[ componentName ],
-							wb.getData( $elm, componentName )
-						)
+					// Extend the settings with window[ "wb-lbx" ] then data-wb-lbx
+					settings = $.extend(
+						true,
+						settings,
+						window[ componentName ],
+						wb.getData( $elm, componentName )
 					);
-
-					// Identify that initialization has completed
-					wb.ready( $elm, componentName );
+					$elm.magnificPopup(
+						settings
+					).data( "wbLbxFilter", settings.filter );
 				}
-			});
+
+				// Identify that initialization has completed
+				wb.ready( $elm, componentName );
+			} );
+
+			// Load dependencies as needed
+			setup();
 		}
+	},
+
+	/**
+	 * @method setup
+	 */
+	setup = function() {
+
+		// Only initialize the i18nText and callbacks once
+		if ( !i18nText ) {
+			i18n = wb.i18n;
+			i18nText = {
+				tClose: i18n( "overlay-close" ) + i18n( "space" ) + i18n( "esc-key" ),
+				tLoading: i18n( "load" ),
+				gallery: {
+					tPrev: i18n( "prv-l" ),
+					tNext: i18n( "nxt-r" ),
+					tCounter: i18n( "lb-curr" )
+				},
+				image: {
+					tError: i18n( "lb-img-err" ) + " (<a href=\"url%\">)"
+				},
+				ajax: {
+					tError: i18n( "lb-xhr-err" ) + " (<a href=\"url%\">)"
+				}
+			};
+
+			callbacks = {
+				open: function() {
+
+					// TODO: Better if dealt with upstream by Magnific popup
+					var $item = this.currItem,
+						$content = this.contentContainer,
+						$wrap = this.wrap,
+						$buttons = $wrap.find( ".mfp-close, .mfp-arrow" ),
+						len = $buttons.length,
+						i, button, $bottomBar;
+
+					for ( i = 0; i !== len; i += 1 ) {
+						button = $buttons[ i ];
+						button.innerHTML += "<span class='wb-inv'> " + button.title + "</span>";
+					}
+
+					if ( $item.type === "image" ) {
+						$bottomBar = $content.find( ".mfp-bottom-bar" ).attr( "id", "lbx-title" );
+					} else {
+						$content.attr( "role", "document" );
+					}
+
+					$wrap.append( "<span tabindex='0' class='lbx-end wb-inv'></span>" )
+                        .find( ".activate-open" )
+                        .trigger( "wb-activate" );
+
+				},
+				change: function() {
+					var $item = this.currItem,
+						$content = this.contentContainer,
+						$el, $bottomBar, $source, $target,
+						description, altTitleId, altTitle;
+
+					if ( $item.type === "image" ) {
+						$el = $item.el;
+						$target = $item.img;
+						$bottomBar = $content.find( ".mfp-bottom-bar" );
+
+						if ( $el ) {
+							$source = $el.find( "img" );
+							$target.attr( "alt", $source.attr( "alt" ) );
+
+							// Replicate aria-describedby if it exists
+							description = $source.attr( "aria-describedby" );
+							if ( description ) {
+								$target.attr( "aria-describedby", description );
+							}
+
+							// Replicate longdesc if it exists
+							description = $source.attr( "longdesc" );
+							if ( description ) {
+								$target.attr( "longdesc", description );
+							}
+
+							// Handle alternate titles
+							altTitleId = $el.attr( "data-title" );
+							if ( altTitleId ) {
+								altTitle = document.getElementById( altTitleId );
+								if ( altTitle !== null ) {
+									$bottomBar.find( ".mfp-title" ).html( altTitle.innerHTML );
+								}
+							}
+						} else {
+							$target.attr( "alt", $bottomBar.find( ".mfp-title" ).html() );
+						}
+					} else {
+						$content
+							.find( ".modal-title, h1" )
+							.first()
+							.attr( "id", "lbx-title" );
+					}
+
+					$content.attr( "aria-labelledby", "lbx-title" );
+				},
+				parseAjax: function( mfpResponse ) {
+					var currItem = this.currItem,
+						urlHash = currItem.src.split( "#" )[ 1 ],
+						filter = currItem.el.data( "wbLbxFilter" ),
+						selector = filter || ( urlHash ? "#" + urlHash : false ),
+						$response;
+
+					// Provide the ability to filter the AJAX response HTML
+					// by the URL hash or a selector
+					// TODO: Should be dealt with upstream by Magnific Popup
+					if ( selector ) {
+						$response = $( "<div>" + mfpResponse.data + "</div>" ).find( selector );
+					} else {
+						$response = $( mfpResponse.data );
+					}
+
+					$response
+						.find( ".modal-title, h1" )
+							.first()
+								.attr( "id", "lbx-title" );
+
+					mfpResponse.data = $response;
+				}
+			};
+		}
+
+		// Load Magnific Popup dependency and bind the init event handler
+		Modernizr.load( {
+			load: "site!deps/jquery.magnific-popup" + wb.getMode() + ".js",
+			complete: function() {
+
+				// Set the dependency i18nText only once
+				$.extend( true, $.magnificPopup.defaults, i18nText );
+				extendedGlobal = true;
+
+				$document.trigger( dependenciesLoadedEvent );
+			}
+		} );
 	};
 
 // Bind the init event of the plugin
@@ -231,7 +275,7 @@ $document.on( "keydown", ".mfp-wrap", function( event ) {
 	 * so returning true allows for events to always continue
 	 */
 	return true;
-});
+} );
 
 /*
  * Sends focus to the close button if focus moves beyond the Lightbox (Jaws fix)
@@ -249,7 +293,7 @@ $document.on( "focus", ".lbx-end", function( event ) {
 	 * so returning true allows for events to always continue
 	 */
 	return true;
-});
+} );
 
 // Outside focus detection (for screen readers that exit the lightbox
 // outside the normal means)
@@ -262,22 +306,21 @@ $document.on( "focusin", "body", function( event ) {
 		// Close the popup
 		$.magnificPopup.close();
 	}
-});
+} );
 
 // Handler for clicking on a same page link within the overlay to outside the overlay
 $document.on( "click vclick", ".mfp-wrap a[href^='#']", function( event ) {
 	var which = event.which,
 		eventTarget = event.target,
-		href, $lightbox, linkTarget;
+		$lightbox, linkTarget;
 
 	// Ignore middle/right mouse buttons
 	if ( !which || which === 1 ) {
 		$lightbox = $( eventTarget ).closest( ".mfp-wrap" );
-		href = eventTarget.getAttribute( "href" );
-		linkTarget = document.getElementById( href.substring( 1 ) );
+		linkTarget = document.getElementById( eventTarget.getAttribute( "href" ).substring( 1 ) );
 
 		// Ignore same page links to within the overlay and modal popups
-		if ( href.length > 1 && !$.contains( $lightbox[ 0 ], linkTarget ) ) {
+		if ( linkTarget && !$.contains( $lightbox[ 0 ], linkTarget ) ) {
 			if ( $lightbox.find( ".popup-modal-dismiss" ).length === 0 ) {
 
 				// Stop propagation of the click event
@@ -295,13 +338,13 @@ $document.on( "click vclick", ".mfp-wrap a[href^='#']", function( event ) {
 			}
 		}
 	}
-});
+} );
 
 // Event handler for closing a modal popup
 $( document ).on( "click", ".popup-modal-dismiss", function( event ) {
 	event.preventDefault();
 	$.magnificPopup.close();
-});
+} );
 
 // Event handler for opening a popup without a link
 $( document ).on( "open" + selector, function( event, items, modal, title ) {
@@ -313,21 +356,28 @@ $( document ).on( "open" + selector, function( event, items, modal, title ) {
 				} : "title";
 
 		event.preventDefault();
-		$.magnificPopup.open({
-			items: items,
-			modal: isModal,
-			gallery: {
-				enabled: isGallery
-			},
-			image: {
-				titleSrc: titleSrc
-			},
-			callbacks: callbacks
-		});
+
+		// Ensure the dependencies are loaded first
+		$document.one( dependenciesLoadedEvent, function() {
+			$.magnificPopup.open( {
+				items: items,
+				modal: isModal,
+				gallery: {
+					enabled: isGallery
+				},
+				image: {
+					titleSrc: titleSrc
+				},
+				callbacks: callbacks
+			} );
+		} );
+
+		// Load dependencies as needed
+		setup();
 	}
-});
+} );
 
 // Add the timer poke to initialize the plugin
 wb.add( selector );
 
-})( jQuery, window, document, wb );
+} )( jQuery, window, document, wb );

@@ -35,6 +35,15 @@
 				}
 			}
 		}
+
+		details {
+			> {
+				* {
+					margin-left: auto;
+					margin-right: auto;
+				}
+			}
+		}
 	}
 
 	.menu {
@@ -175,7 +184,6 @@
 		}
 
 		summary {
-			margin-left: -3px;
 			padding-left: 3px;
 
 			&.wb-navcurr {

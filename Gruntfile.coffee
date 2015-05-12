@@ -17,7 +17,7 @@ module.exports = (grunt) ->
 		"dist"
 		"Produces the production files"
 		[
-			"test"
+			#"test"
 			"build"
 			"minify"
 			"pages:theme"

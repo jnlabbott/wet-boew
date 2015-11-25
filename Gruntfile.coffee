@@ -48,7 +48,6 @@ module.exports = (grunt) ->
 		[
 			"js-min"
 			"css-min"
-			"imagemin"
 		]
 	)
 
@@ -92,7 +91,7 @@ module.exports = (grunt) ->
 		"init"
 		"Only needed when the repo is first cloned"
 		[
-			"modernizr"
+#			"modernizr"
 		]
 	)
 
@@ -335,7 +334,7 @@ module.exports = (grunt) ->
 				options:
 					stripBanners: false
 				src: [
-					"lib/modernizr/modernizr-custom.js"
+					"dep/modernizr-custom.js"
 					"src/core/wb.js"
 					"src/core/helpers.js"
 					"src/plugins/**/*.js"
@@ -350,7 +349,7 @@ module.exports = (grunt) ->
 				options:
 					stripBanners: false
 				src: [
-					"lib/modernizr/modernizr-custom.js"
+					"dep/modernizr-custom.js"
 					"lib/respond/src/respond.js"
 					"lib/excanvas/excanvas.js"
 					"lib/html5shiv/dist/html5shiv-printshiv.js"
@@ -923,42 +922,43 @@ module.exports = (grunt) ->
 					"<%= themeDist %>/**/ie8*.min.css"
 				]
 
-		modernizr:
-			dist:
-				devFile: "lib/modernizr/modernizr-custom.js"
-				outputFile: "lib/modernizr/modernizr-custom.js"
-				extra:
-					shiv: false
-					printshiv: false
-					load: true
-					mq: true
-					css3: true
-					input: true
-					inputtypes: true
-					svg: true
-					html5: false
-					cssclasses: true
-					csstransitions: true
-					fontface: true
-					backgroundsize: true
-					borderimage: true
-				extensibility:
-					addtest: false
-					prefixed: false
-					teststyles: true
-					testprops: true
-					testallprops: true
-					hasevents: true
-					prefixes: true
-					domprefixes: true
-				tests: [
-					"elem_details"
-					"elem_progress_meter"
-					"mathml"
-					"cors"
-				]
-				parseFiles: false
-				matchCommunityTests: false
+# Remove modernizr temp
+#		modernizr:
+#			dist:
+#				devFile: "lib/modernizr/modernizr-custom.js"
+#				outputFile: "lib/modernizr/modernizr-custom.js"
+#				extra:
+#					shiv: false
+#					printshiv: false
+#					load: true
+#					mq: true
+#					css3: true
+#					input: true
+#					inputtypes: true
+#					svg: true
+#					html5: false
+#					cssclasses: true
+#					csstransitions: true
+#					fontface: true
+#					backgroundsize: true
+#					borderimage: true
+#				extensibility:
+#					addtest: false
+#					prefixed: false
+#					teststyles: true
+#					testprops: true
+#					testallprops: true
+#					hasevents: true
+#					prefixes: true
+#					domprefixes: true
+#				tests: [
+#					"elem_details"
+#					"elem_progress_meter"
+#					"mathml"
+#					"cors"
+#				]
+#				parseFiles: false
+#				matchCommunityTests: false
 
 		copy:
 			bootstrap:
@@ -1021,12 +1021,12 @@ module.exports = (grunt) ->
 					expand: true
 					flatten: true
 				,
-					cwd: "lib/jquery-oldIE/dist"
+					cwd: "lib/jquery/dist"
 					src: "*.*"
 					dest: "<%= coreDist %>/js/jquery/<%= jqueryVersion.version %>"
 					expand: true
 				,
-					cwd: "lib/jquery/dist"
+					cwd: "lib/jquery-oldIE/dist"
 					src: "*.*"
 					dest: "<%= coreDist %>/js/jquery/<%= jqueryOldIEVersion.version %>"
 					expand: true
@@ -1171,13 +1171,6 @@ module.exports = (grunt) ->
 						if filepath.match(/\.css/)
 							return content.replace(/\.\.\/\.\.\/wet-boew\/(assets|fonts)/g, '../$1')
 						content
-
-		imagemin:
-			all:
-				cwd: "dist/"
-				src: "**/*.png"
-				dest: "dist/"
-				expand: true
 
 		clean:
 			dist: ["dist", "src/base/partials/*sprites*"]

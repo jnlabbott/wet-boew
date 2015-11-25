@@ -7,11 +7,15 @@
  *	Link colour and decoration
  */
 
+%no-decoration {
+	text-decoration: none;
+}
+
 a {
 	text-decoration: underline;		// re-enable underlining
 
 	&.btn {
-		text-decoration: none;		// except for buttons
+		@extend %no-decoration;	// except for buttons
 	}
 
 	&:visited {
@@ -45,8 +49,24 @@ a {
 }
 
 .dl-horizontal {
-	dt {
-		white-space: normal;
+	@media (min-width: $screen-sm-min) {
+		dt {
+			border-top: 1px solid $clrMedium;
+			padding: 10px 10px 10px 0;
+			text-align: left;
+			white-space: normal;
+		}
+
+		dd {
+			border-top: 1px solid $clrMedium;
+			margin-bottom: 3px;
+			margin-left: 160px;
+			padding: 10px 10px 10px 0;
+		}
+
+		dt + dd {
+			padding-bottom: 0;
+		}
 	}
 }
 
@@ -75,6 +95,10 @@ a {
 				}
 			}
 		}
+	}
+
+	a {
+		@extend %no-decoration;
 	}
 }
 
@@ -581,6 +605,21 @@ fieldset {
 			@extend %border-style-solid;
 		}
 	}
+
+	/*
+	 *	Fieldset/legend as a label for a group of checkboxes or radio buttons
+	 *	https://github.com/wet-boew/wet-boew/issues/5797
+	 */
+	&.chkbxrdio-grp {
+		border-top: 0;
+		padding-top: 0;
+
+		legend {
+			font-size: $font-size-base;
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+	}
 }
 
 /*
@@ -708,6 +747,14 @@ fieldset {
 	}
 }
 
+
+/*
+ * btn-xs should be equal to btn-sm in >v4.0.*
+*/
+.btn-group-xs .btn,
+.btn.btn-xs {
+	min-height: 0;
+}
 
 /*
  *  Right-to-left support

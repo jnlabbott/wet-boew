@@ -32,7 +32,7 @@ var getUrlParts = function( url ) {
 			// A collection of the parameters of the query string part of the URL.
 			params: ( function() {
 				var results = {},
-					queryString = a.search.replace( /^\?/, "" ).split( "&" ),
+					queryString = encodeURI( decodeURI( a.search.replace( /^\?/, "" ) ) ).replace( /'/g, "%27" ).split( "&" ),
 					len = queryString.length,
 					key, strings, i;
 
@@ -203,6 +203,8 @@ var getUrlParts = function( url ) {
 				// Identify that the component is ready
 				$elm.trigger( "wb-ready." + componentName, context );
 				this.initQueue -= 1;
+			} else {
+				this.doc.trigger( "wb-ready." + componentName, context );
 			}
 
 			// Identify that global initialization is complete
@@ -380,6 +382,10 @@ var getUrlParts = function( url ) {
 			}
 
 			return hash;
+		},
+
+		stripWhitespace: function( str ) {
+			return str.replace( /\s+/g, "" );
 		}
 	};
 

@@ -115,10 +115,10 @@ var componentName = "wb-menu",
 		var k, $elm, elm, $item, $subItems, subItemsLength,
 			$section = $( section ),
 			posinset = "' aria-posinset='",
-			menuitem = "role='menuitem' aria-setsize='",
+			menuitem = " role='menuitem' aria-setsize='",
 			sectionHtml = "<li><details>" + "<summary class='mb-item" +
 				( $section.hasClass( "wb-navcurr" ) || $section.children( ".wb-navcurr" ).length !== 0 ? " wb-navcurr'" : "'" ) +
-				"' " + menuitem + sectionsLength + posinset + ( sectionIndex + 1 ) +
+				menuitem + sectionsLength + posinset + ( sectionIndex + 1 ) +
 				"' aria-haspopup='true'>" + $section.text() + "</summary>" +
 				"<ul class='list-unstyled mb-sm' role='menu' aria-expanded='false' aria-hidden='true'>";
 
@@ -133,7 +133,7 @@ var componentName = "wb-menu",
 			if ( elm && subItemsLength === 0 && elm.nodeName.toLowerCase() === "a" ) {
 				sectionHtml += "<li>" + $item[ 0 ].innerHTML.replace(
 						/(<a\s)/,
-						"$1 " + menuitem + itemsLength +
+						"$1" + menuitem + itemsLength +
 							posinset + ( k + 1 ) +
 							"' tabindex='-1' "
 					) + "</li>";
@@ -494,12 +494,13 @@ $document.on( "timerpoke.wb " + initEvent + " ajax-fetched.wb ajax-failed.wb", s
 } );
 
 $document.on( "mouseleave", selector + " .menu", function( event ) {
+    var $currentTarget = $( event.currentTarget );
 
 	// Clear the timeout for open/closing menus
 	clearTimeout( globalTimeout );
 
 	globalTimeout = setTimeout( function() {
-		menuClose( $( event.currentTarget ).find( ".active" ), true );
+		menuClose( $currentTarget.find( ".active" ), true );
 	}, hoverDelay );
 } );
 

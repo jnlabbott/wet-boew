@@ -60,21 +60,16 @@ var componentName = "wb-feeds",
 		 * @return {string}	HTML string for creating a photowall effect
 		 */
 		flickr: function( data ) {
-
-			var seed = wb.getId(),
-				title = data.title,
-				media = data.media.m,
-				thumbnail = media.replace( "_m.", "_s." ),
-				image = media.replace( "_m", "" ),
-				description = data.description.replace( /^\s*<p>(.*?)<\/p>\s*<p>(.*?)<\/p>/i, "" );
+			var media = data.media.m,
+				flickrData = {
+					title: data.title,
+					thumbnail: media.replace( "_m.", "_s." ),
+					image: media.replace( "_m", "" ),
+					description: data.description.replace( /^\s*<p>(.*?)<\/p>\s*<p>(.*?)<\/p>/i, "" )
+				};
 
 			// due to CORS we cannot default to simple ajax pulls of the image. We have to inline the content box
-			return "<li><a class='wb-lbx' href='#" + seed + "'><img src='" + thumbnail + "' alt='" + title + "' title='" + title + "' class='img-responsive'/></a>" +
-					"<section id='" + seed + "' class='mfp-hide modal-dialog modal-content overlay-def'>" +
-					"<header class='modal-header'><h2 class='modal-title'>" + title + "</h2></header>" +
-					"<div class='modal-body'><img src='" + image + "' class='thumbnail center-block' alt='" + title + "' />" +
-					description + "</div></section>" +
-					"</li>";
+			return "<li><a class='feed-flickr' href='javascript:;' data-flickr='" + wb.escapeAttribute( JSON.stringify( flickrData ) ) + "'><img src='" + flickrData.thumbnail + "' alt='" + wb.escapeAttribute( flickrData.title ) + "' title='" + wb.escapeAttribute( flickrData.title ) + "' class='img-responsive'/></a></li>";
 		},
 
 		/**
@@ -83,24 +78,13 @@ var componentName = "wb-feeds",
 		 * @return {string}	HTML string for creating a photowall effect
 		 */
 		youtube: function( data ) {
-			var seed = wb.getId(),
-				mediaGroup = data.media$group,
-				title = mediaGroup.media$title.$t,
-				thumbnail = mediaGroup.media$thumbnail[ 1 ].url,
-				description = mediaGroup.media$description.$t,
-				videoid = mediaGroup.yt$videoid.$t;
+			var youtubeDate = {
+				title: data.title,
+				videoId: data.id
+			};
 
 			// Due to CORS we cannot default to simple ajax pulls of the image. We have to inline the content box
-			return "<li class='col-md-4 col-sm-6' ><a class='wb-lbx' href='#" + seed + "'><img src='" + thumbnail + "' alt='" + title + "' title='" + title + "' class='img-responsive' /></a>" +
-					"<section id='" + seed + "' class='mfp-hide modal-dialog modal-content overlay-def'>" +
-					"<header class='modal-header'><h2 class='modal-title'>" + title + "</h2></header>" +
-					"<div class='modal-body'>" +
-					"<figure class='wb-mltmd'><video title='" + title + "'>" +
-					"<source type='video/youtube' src='http://www.youtube.com/watch?v=" + videoid + "' />" +
-					"</video><figcaption><p>" +  description + "</p>" +
-					"</figcaption></figure>" +
-					"</div></section>" +
-					"</li>";
+			return "<li class='col-md-4 col-sm-6 feed-youtube' data-youtube='" + wb.escapeAttribute( JSON.stringify( youtubeDate ) ) + "'><a href='javascript:;'><img src='http://img.youtube.com/vi/" + youtubeDate.videoId + "/mqdefault.jpg' alt='" + wb.escapeAttribute( youtubeDate.title ) + "' title='" + wb.escapeAttribute( youtubeDate.title ) + "' class='img-responsive' /></a></li>";
 		},
 		/**
 		 * [pinterest template]
@@ -190,7 +174,7 @@ var componentName = "wb-feeds",
 		// returns DOM object = proceed with init
 		// returns undefined = do not proceed with init (e.g., already initialized)
 		var elm = wb.init( event, componentName, selector ),
-			fetch, url, $content, limit, feeds, fType, last, i, callback, fElem, fIcon;
+			fetch, url, $content, limit, feeds, fType, last, i, callback, fElem, fIcon, youtubeData;
 
 		if ( elm ) {
 			$content = $( elm ).find( ".feeds-cont" );
@@ -220,14 +204,29 @@ var componentName = "wb-feeds",
 						callback = "jsoncallback";
 						$content.data( componentName + "-postProcess", [ ".wb-lbx" ] );
 					} else {
-						fType = "youtube";
-						$content.data( componentName + "-postProcess", [ ".wb-lbx", ".wb-mltmd" ] );
+						fType = "generic";
+						callback = "callback";
 					}
 
 					// We need a Gallery so lets add another plugin
 					// #TODO: Lightbox review for more abstraction we should not have to add a wb.add() for overlaying
 					fetch.url = fElem.attr( "data-ajax" );
 					fetch.jsonp = callback;
+				} else if ( fElem.attr( "data-youtube" ) ) {
+					youtubeData = wb.getData( fElem, "youtube" );
+
+					$content.data( componentName + "-postProcess", [ ".wb-lbx", ".wb-mltmd" ] );
+
+					if ( youtubeData.playlist ) {
+						fElem.trigger( {
+							type: "data-ready.wb-feeds",
+							feedsData: youtubeData.playlist
+						}, {
+							feedType: "youtube",
+							_content: $content
+						} );
+					}
+
 				} else {
 					url = jsonRequest( fElem.attr( "href" ), limit );
 					fetch.url = url;
@@ -318,9 +317,13 @@ var componentName = "wb-feeds",
 			hasVisibilityHandler = "vis-handler",
 			i, sorted, sortedEntry, $tabs;
 
-		sorted = entries.sort( function( a, b ) {
-			return compare( b.publishedDate, a.publishedDate );
-		} );
+		if ( feedtype !== "youtube" ) {
+			sorted = entries.sort( function( a, b ) {
+				return compare( b.publishedDate, a.publishedDate );
+			} );
+		} else {
+			sorted = entries;
+		}
 
 		for ( i = 0; i !== cap; i += 1 ) {
 			sortedEntry = sorted[ i ];
@@ -393,14 +396,20 @@ var componentName = "wb-feeds",
 		$elm.trigger( "wb-feed-ready" + selector );
 	};
 
-$document.on( "ajax-fetched.wb", selector + " " + feedLinkSelector, function( event, context ) {
-	var response = event.fetch.response,
-		eventTarget = event.target,
-		data;
+$document.on( "ajax-fetched.wb data-ready.wb-feeds", selector + " " + feedLinkSelector, function( event, context ) {
+	var eventTarget = event.target,
+		data, response;
 
 	// Filter out any events triggered by descendants
 	if ( event.currentTarget === eventTarget ) {
-		data = ( response.responseData ) ? response.responseData.feed.entries : response.items || response.feed.entry;
+		switch ( event.type ) {
+			case "ajax-fetched":
+				response = event.fetch.response;
+				data = ( response.responseData ) ? response.responseData.feed.entries : response.items || response.feed.entry;
+				break;
+			default:
+				data = event.feedsData;
+		}
 
 		// Identify that initialization has completed
 		// if there are no entries left to process
@@ -408,6 +417,62 @@ $document.on( "ajax-fetched.wb", selector + " " + feedLinkSelector, function( ev
 			wb.ready( $( eventTarget ).closest( selector ), componentName );
 		}
 	}
+} );
+
+$document.on( "click", selector + " .feed-youtube", function( event ) {
+	var youTubeOverlaySelector  = "#wb-feeds-youtube-lbx",
+		$youTubeOverlay = $( youTubeOverlaySelector ),
+		youtubeData = wb.getData( event.currentTarget, "youtube" ),
+		videoUrl = "http://www.youtube.com/watch?v=" + youtubeData.videoId,
+		videoSource = "<figure class='wb-mltmd'><video title='" + youtubeData.title + "'>" +
+			"<source type='video/youtube' src='" + videoUrl + "' />" +
+			"</video><figcaption><p>" +  youtubeData.title + "</p>" +
+			"</figcaption></figure>";
+
+	if ( $youTubeOverlay.length === 0 ) {
+		$youTubeOverlay = $( "<section id='wb-feeds-youtube-lbx' class='mfp-hide modal-dialog modal-content overlay-def'>" +
+			"<header class='modal-header'><h2 class='modal-title'>" + youtubeData.title + "</h2></header>" +
+			"<div class='modal-body'>" +
+			videoSource +
+			"</div></section>" ).insertAfter( "main" );
+	} else {
+
+		//Modify lightbox
+		$youTubeOverlay.find( ".modal-title" ).text( youtubeData.title );
+		$youTubeOverlay.find( ".modal-body" ).empty().append( videoSource );
+	}
+
+	//Temporary fix until lightbox auto initialize the multimedia player
+	$youTubeOverlay.find( ".wb-mltmd" ).trigger( "wb-init.wb-mltmd" );
+
+	$( document ).trigger( "open.wb-lbx", [ {
+		src: youTubeOverlaySelector,
+		type: "inline"
+	} ] );
+} );
+
+$document.on( "click", selector + " .feed-flickr", function( event ) {
+	var flickrOverlaySelector  = "#wb-feeds-flick-lbx",
+		$flickrOverlay = $( flickrOverlaySelector ),
+		flickrData = wb.getData( event.currentTarget, "flickr" ),
+		body = "<img src='" + flickrData.image + "' class='thumbnail center-block' alt='" + flickrData.title + "' /><span>" +
+			flickrData.description + "</span>";
+
+	if ( $flickrOverlay.length === 0 ) {
+		$flickrOverlay = $( "<section id='wb-feeds-flick-lbx' class='mfp-hide modal-dialog modal-content overlay-def'>" +
+			"<header class='modal-header'><h2 class='modal-title'>" + flickrData.title + "</h2></header>" +
+			"<div class='modal-body'>" + body + "</div></section>" ).insertAfter( "main" );
+	} else {
+
+		//Modify lightbox
+		$flickrOverlay.find( ".modal-title" ).text( flickrData.title );
+		$flickrOverlay.find( ".modal-body" ).empty().append( body );
+	}
+
+	$( document ).trigger( "open.wb-lbx", [ {
+		src: flickrOverlaySelector,
+		type: "inline"
+	} ] );
 } );
 
 // Bind the init event to the plugin

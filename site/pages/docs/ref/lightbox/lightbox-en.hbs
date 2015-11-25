@@ -6,7 +6,7 @@
 	"categoryfile": "plugins",
 	"description": "Display images and other content in a dialog box, either individually or as part of a gallery.",
 	"altLangPrefix": "lightbox",
-	"dateModified": "2015-03-09"
+	"dateModified": "2015-07-09"
 }
 ---
 <span class="wb-prettify all-pre hide"></span>
@@ -146,6 +146,8 @@
 			<tr>
 				<td><code>wb-open.wb-lbx</code> (v4.0.4+)</td>
 				<td>Triggered manually:
+					<pre><code>$( document ).trigger( "open.wb-lbx", items, modal, image, ajax (v4.0.16+) );</code></pre>
+					<p>The <code>items</code> parameter is required while the <code>modal</code>, <code>image</code> and <code>ajax</code> parameters are optional. Note that the <code>ajax</code> parameter was added in v4.0.16. The following is an example usage:
 					<pre><code>$( document ).trigger( "open.wb-lbx", [
 	[
 		{
@@ -156,7 +158,15 @@
 	false,
 	[
 		"Image 1"
-	]
+	],
+	{
+		settings: {
+			type: 'POST',
+			data: { 
+				foo: 'bar'
+			}
+		}
+    }
 ]);</code></pre>
 				</td>
 				<td>Used to manually open a Lightbox popup. Can be used to load single popups, galleries and modal popups. See <a href="../../../demos/lightbox/lightbox-en.html#examples5">Opening popups through JavaScript</a> for working examples.</td>
@@ -176,7 +186,7 @@
 					<ul>
 						<li><strong>Opened with <code>.wb-lbx</code></strong>:
 							<pre><code>$( ".wb-lbx" ).on( "mfpClose", function( event ) {
-	$.magnificPopup.instance.items[ 0 ].data.src;
+	var src = $.magnificPopup.instance.items[ 0 ].src;
 	
 	if ( src === "#inline_content" ) {
 	} else if ( src === "demo/1_b.jpg" ) {
@@ -185,7 +195,7 @@
 						</li>
 						<li><strong>Opened with JavaScript</strong>:
 							<pre><code>$( document ).on( "mfpClose", function( event ) {
-	$.magnificPopup.instance.items[ 0 ].data.src;
+	var src = $.magnificPopup.instance.items[ 0 ].src;
 	
 	if ( src === "#inline_content" ) {
 	} else if ( src === "demo/1_b.jpg" ) {

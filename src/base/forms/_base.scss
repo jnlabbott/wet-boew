@@ -10,8 +10,11 @@ $asterisk-width: 0.665em;
 	font-style: italic;
 }
 
+// scss-lint:disable QualifyingElement
 label,
-legend {
+legend,
+.checkbox,
+input[type="checkbox"] {
 	&.required {
 		&:before {
 			@extend %forms-color-red-italic;
@@ -26,6 +29,7 @@ legend {
 		}
 	}
 }
+// scss-lint:enable QualifyingElement
 
 [dir=rtl] {
 	label,

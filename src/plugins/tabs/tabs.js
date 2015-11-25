@@ -350,7 +350,7 @@ var componentName = "wb-tabs",
 			listItems = $tabList.children().get(),
 			listCounter = listItems.length - 1,
 			isDetails = $panels[ 0 ].nodeName.toLowerCase() === "details",
-			isActive, item, link, panelId;
+			isActive, item, link, panelId, activeFound;
 
 		$panels.attr( "tabindex", "-1" );
 
@@ -365,10 +365,18 @@ var componentName = "wb-tabs",
 			item.setAttribute( "aria-labelledby", item.id + "-lnk" );
 		}
 
+		activeFound = false;
 		for ( ; listCounter !== -1; listCounter -= 1 ) {
 			item = listItems[ listCounter ];
 			item.setAttribute( "role", "presentation" );
+
 			isActive = item.className.indexOf( "active" ) !== -1;
+			if ( isActive ) {
+				activeFound = true;
+			} else if ( listCounter === 0 && !activeFound ) {
+				isActive = true;
+				item.className += " active";
+			}
 
 			link = item.getElementsByTagName( "a" )[ 0 ];
 			panelId = link.getAttribute( "href" ).substring( 1 );
@@ -557,15 +565,16 @@ var componentName = "wb-tabs",
 	 * @param {jQuery Object} $currentElm Element being initialized (only during initialization process).
 	 */
 	onResize = function( $currentElm ) {
-		var $elms, $elm, $tabPanels, $details, $tablist, $openDetails, openDetailsId,
-			$nonOpenDetails, $active, $summary, i, len, viewChange, isInit;
+		var $elms, $elm, $tabPanels, $details, $detailsElm, $tablist,
+			$openDetails, openDetailsId, activeId, $summary, $panelElm,
+			i, len, j, len2, viewChange, isInit, isActive;
 
 		if ( initialized ) {
 			isSmallView = document.documentElement.className.indexOf( smallViewPattern ) !== -1;
 			viewChange = isSmallView !== oldIsSmallView;
 			isInit = $currentElm.length ? true : false;
 
-			if ( viewChange ) {
+			if ( viewChange || isInit ) {
 				$elms = isInit ? $currentElm : $( selector );
 				len = $elms.length;
 
@@ -573,6 +582,7 @@ var componentName = "wb-tabs",
 					$elm = $elms.eq( i );
 					$tabPanels = $elm.children( ".tabpanels" );
 					$details = $tabPanels.children( "details" );
+					len2 = $details.length;
 
 					if ( $details.length !== 0 ) {
 						$tabPanels.detach();
@@ -582,19 +592,37 @@ var componentName = "wb-tabs",
 						if ( isSmallView ) {
 
 							// Switch to small view
-							$active = $tablist.find( ".active a" );
-							$details
-								.removeAttr( "role aria-expanded aria-hidden" )
-								.removeClass( "fade out in" )
-								.children( ".tgl-panel" )
-									.attr( "role", "tabpanel" );
-							$openDetails = $details
-												.filter( "#" + $active.attr( "href" ).substring( 1 ) )
-													.attr( "open", "open" )
-													.addClass( "open" );
-							$nonOpenDetails = $details.not( $openDetails )
-														.removeAttr( "open" )
-														.removeClass( "open" );
+							activeId = $tablist.find( ".active a" ).attr( "href" ).substring( 1 );
+							for ( j = 0; j !== len2; j += 1 ) {
+								$detailsElm = $details.eq( j );
+								$panelElm = $detailsElm.children( ".tgl-panel" );
+								isActive = $detailsElm.attr( "id" ) === activeId;
+
+								$detailsElm
+									.removeAttr( "role aria-expanded aria-hidden" )
+									.removeClass( "fade out in" )
+									.toggleClass( "open", isActive );
+
+								$panelElm
+									.attr( "role", "tabpanel" )
+									.removeAttr( "aria-expanded" )
+									.removeAttr( "aria-hidden" );
+
+								if ( isActive ) {
+									$detailsElm.attr( "open", "open" );
+								} else {
+									$detailsElm.removeAttr( "open" );
+								}
+
+								if ( !isInit ) {
+									$detailsElm
+										.children( "summary" )
+											.attr( {
+												"aria-expanded": isActive,
+												"aria-selected": isActive
+											} );
+								}
+							}
 						} else if ( oldIsSmallView ) {
 
 							// Switch to large view
@@ -636,7 +664,7 @@ var componentName = "wb-tabs",
 						$elm.append( $tabPanels );
 
 						// Update the tablist role
-						if ( isSmallView ) {
+						if ( isSmallView && !isInit ) {
 							$elm.attr( "role", "tablist" );
 						} else if ( oldIsSmallView ) {
 							$elm

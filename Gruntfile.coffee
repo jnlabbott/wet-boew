@@ -9,6 +9,7 @@ module.exports = (grunt) ->
 		"Default task that runs the core unminified build"
 		[
 			"build"
+			"minify"
 			"demos"
 		]
 	)

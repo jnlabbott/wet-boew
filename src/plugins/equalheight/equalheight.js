@@ -20,6 +20,7 @@ var componentName = "wb-eqht",
 	initEvent = "wb-init" + selector,
 	vAlignCSS = "vertical-align",
 	vAlignDefault = "top",
+	contentUpdatedEvent = "wb-contentupdated",
 	minHeightCSS = "min-height",
 	minHeightDefault = "0",
 	cssValueSeparator = ":",
@@ -56,7 +57,7 @@ var componentName = "wb-eqht",
 	 * @method onResize
 	 */
 	onResize = function() {
-		var $elm, $children, $anchor, currentChild, childCSS, minHeight, i, j,
+		var $elm, $children, $anchor, currentChild, childCSS, i, j,
 			$elms = $( selector ),
 			row = [],
 			rowTop = -1,
@@ -67,6 +68,9 @@ var componentName = "wb-eqht",
 		for ( i = $elms.length - 1; i !== -1; i -= 1 ) {
 			$elm = $elms.eq( i );
 			$children = $elm.children();
+
+			// Reinitialize the row at the beginning of each section of equal height
+			row = [];
 
 			$anchor = detachElement( $elm );
 			for ( j = $children.length - 1; j !== -1; j -= 1 ) {
@@ -97,37 +101,57 @@ var componentName = "wb-eqht",
 			}
 			$elm = reattachElement( $anchor );
 
-			for ( j = $children.length - 1; j !== -1; j -= 1 ) {
+			// set the top and tallest to the first element
+			rowTop = $children[ 0 ] ? $children[ 0 ].offsetTop : 0;
+			tallestHeight = $children[ 0 ] ? $children[ 0 ].offsetHeight : 0;
+
+			// first, the loop MUST be from start to end to work.
+			for ( j = 0; j < $children.length; j++ ) {
 				currentChild = $children[ j ];
 
 				currentChildTop = currentChild.offsetTop;
 				currentChildHeight = currentChild.offsetHeight;
 
 				if ( currentChildTop !== rowTop ) {
-					recordRowHeight( row, tallestHeight );
 
+					// as soon as we find an element not on this row (not the same offsetTop)
+					// we need to equalize each items in that row to align the next row.
+					equalize( row, tallestHeight );
+
+					// since the elements of the previous row was equalized
+					// we need to get the new offsetTop of the current element
+					currentChildTop = currentChild.offsetTop;
+
+					// reset the row, rowTop and tallestHeight
+					row.length = 0;
 					rowTop = currentChildTop;
 					tallestHeight = currentChildHeight;
-				} else {
-					tallestHeight = ( currentChildHeight > tallestHeight ) ? currentChildHeight : tallestHeight;
 				}
 
+				tallestHeight = Math.max( currentChildHeight, tallestHeight );
 				row.push( $children.eq( j ) );
 			}
-			recordRowHeight( row, tallestHeight );
 
-			$anchor = detachElement( $elm );
-			for ( j = $children.length - 1; j !== -1; j -= 1 ) {
-				minHeight = $children.eq( j ).data( minHeightCSS );
-
-				if ( minHeight ) {
-					$children[ j ].style.minHeight = minHeight + "px";
-				}
-			}
-			$elm = reattachElement( $anchor );
+			// equalize the last row
+			equalize( row, tallestHeight );
 
 			// Identify that the height equalization was updated
 			$document.trigger( "wb-updated" + selector );
+		}
+	},
+
+	/**
+	* @method equalize
+	* @param {array} row the array of items to be equalized
+	* @param {int} tallestHeight the talest height to use to equalize
+	*/
+	equalize = function( row, tallestHeight ) {
+		for ( var i = 0; i < row.length; i++ ) {
+
+			// added a +1 because some floated element got stuck if the
+			// shortest element was the last element in the row
+			var minHeight = tallestHeight + 1;
+			row[ i ][ 0 ].style.minHeight = minHeight + "px";
 		}
 	},
 
@@ -174,30 +198,13 @@ var componentName = "wb-eqht",
 		}
 
 		return $elm;
-	},
-
-	/**
-	 * @method recordRowHeight
-	 * @param {array} row The elements for which to record the height
-	 * @param {integer} height The height to record
-	 */
-	recordRowHeight = function( row, height ) {
-		var i = row.length - 1;
-
-		// only set a height if more than one element exists in the row
-		if ( i ) {
-			for ( ; i !== -1; i -= 1 ) {
-				row[ i ].data( minHeightCSS, height );
-			}
-		}
-		row.length = 0;
 	};
 
 // Bind the init event of the plugin
 $document.on( eventTimerpoke + " " + initEvent, selector, init );
 
 // Handle text and window resizing
-$document.on( "txt-rsz.wb win-rsz-width.wb win-rsz-height.wb wb-updated.wb-tables wb-update" + selector, onResize );
+$document.on( "txt-rsz.wb win-rsz-width.wb win-rsz-height.wb " + contentUpdatedEvent + " wb-updated.wb-tables wb-update" + selector, onResize );
 
 // Add the timer poke to initialize the plugin
 wb.add( selector );

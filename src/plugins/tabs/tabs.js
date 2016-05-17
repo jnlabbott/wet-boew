@@ -14,11 +14,12 @@
  * variables that are common to all instances of the plugin on a page.
  */
 var componentName = "wb-tabs",
-	selector = "." + componentName,
-	initEvent = "wb-init" + selector,
-	shiftEvent = "wb-shift" + selector,
-	selectEvent = "wb-select" + selector,
-	updatedEvent = "wb-updated" + selector,
+	namespace = "." + componentName,
+	selector = namespace + ":has( > .tabpanels > [role='tabpanel']:nth-of-type(2), > .tabpanels > details:nth-of-type(2), > [role='tabpanel']:nth-of-type(2), > details:nth-of-type(2))",
+	initEvent = "wb-init" + namespace,
+	shiftEvent = "wb-shift" + namespace,
+	selectEvent = "wb-select" + namespace,
+	updatedEvent = "wb-updated" + namespace,
 	setFocusEvent = "setfocus.wb",
 	controls = selector + " ul[role=tablist] a, " + selector + " ul[role=tablist] .tab-count",
 	initialized = false,
@@ -71,6 +72,7 @@ var componentName = "wb-tabs",
 			$panels = $elm.find( "> .tabpanels > [role=tabpanel], > .tabpanels > details" );
 			$tablist = $elm.children( "[role=tablist]" );
 			isCarousel = $tablist.length !== 0;
+
 			activeId = wb.jqEscape( wb.pageUrlParts.hash.substring( 1 ) );
 			hashFocus = activeId.length !== 0;
 			$openPanel = hashFocus ? $panels.filter( "#" + activeId ) : undefined;

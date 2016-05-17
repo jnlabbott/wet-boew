@@ -7,14 +7,6 @@
 }
 
 .wb-tabs {
-	&.carousel-s1 {
-		li {
-			&[role="presentation"] {
-				@extend %accessible-invisible-xxSmallView;
-			}
-		}
-	}
-
 	&.carousel-s2 {
 		[role="tablist"] {
 			li {
@@ -23,7 +15,7 @@
 					margin-left: 0;
 
 					a {
-						padding: 10px 0 10px 0.4em;
+						padding: 10px 0 10px .4em;
 					}
 				}
 
@@ -36,7 +28,7 @@
 				}
 
 				&.tab-count {
-					font-size: 0.9em;
+					font-size: .9em;
 					margin-right: 5px;
 				}
 

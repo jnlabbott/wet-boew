@@ -22,8 +22,8 @@
     "lib"
   ],
   "dependencies": {
-    "bootstrap-sass-official": "3.3.1",
-    "DataTables": "1.10.7",
+    "bootstrap-sass-official": "3.3.6",
+    "DataTables": "1.10.11",
     "es5-shim": "2.3.0",
     "excanvas": "*",
     "flot": "0.8.3",
@@ -39,9 +39,10 @@
     "respond": "1.4.2",
     "selectivizr": "1.0.2",
     "SideBySideImproved": "https://github.com/pkoltermann/SideBySideImproved.git",
-	"toastr": "2.0.3",
-	"jstree": "3.0.3",
-	"chosen": "1.4.1"
+	"toastr": "2.1.2",
+	"jstree": "3.3.1",
+	"chosen": "1.4.1",
+	"select2": "4.0.2"
   },
   "moduleType": [
     "globals"

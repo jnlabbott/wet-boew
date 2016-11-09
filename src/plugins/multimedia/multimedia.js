@@ -12,6 +12,8 @@
 var componentName = "wb-mltmd",
 	selector = "." + componentName,
 	initEvent = "wb-init" + selector,
+	ctrls = selector + " .wb-mm-ctrls",
+	dispCtrls = selector + " .display," + ctrls,
 	template,
 	i18n, i18nText,
 	youtubeReadyEvent = "ready.youtube",
@@ -609,7 +611,7 @@ $document.on( initializedEvent, selector, function( event ) {
 		} else {
 
 			// Do nothing since IE8 support is no longer required
-            return;
+			return;
 		}
 
 		// Identify that initialization has completed
@@ -762,26 +764,37 @@ $document.on( "input change", selector, function( event ) {
 	}
 } );
 
-$document.on( "keydown", selector, function( event ) {
-	var $this = $( event.currentTarget ),
-		playerTarget = event.currentTarget,
+$document.on( "keydown", dispCtrls, function( event ) {
+	var playerTarget = event.currentTarget.parentNode,
 		which = event.which,
-		ctrls = ".wb-mm-ctrls",
 		volume = 0,
-		step = 0.05;
+		step = 0.05,
+		$playerTarget = $( playerTarget );
 
 	if ( !( event.ctrlKey || event.altKey || event.metaKey ) ) {
 		switch ( which ) {
 		case 32:
-			$this.find( ctrls + " .playpause" ).trigger( "click" );
+
+			// Mute/unmute if focused on the mute/unmute button or volume input.
+			if ( $( event.target ).hasClass( "mute" ) || event.target.nodeName === "INPUT" ) {
+				$playerTarget.find( ".mute" ).trigger( "click" );
+			} else if ( $( event.target ).hasClass( "cc" ) ) {
+
+				// Show/hide captions if focused on the closed captions button.
+				$playerTarget.find( ".cc" ).trigger( "click" );
+			} else {
+
+				// Play/pause if focused on anything else (i.e. the video itself, play/pause button or progress bar).
+				$playerTarget.find( ".playpause" ).trigger( "click" );
+			}
 			break;
 
 		case 37:
-			playerTarget.player( "setCurrentTime", this.player( "getCurrentTime" ) - this.player( "getDuration" ) * 0.05 );
+			playerTarget.player( "setCurrentTime", this.parentNode.player( "getCurrentTime" ) - this.parentNode.player( "getDuration" ) * 0.05 );
 			break;
 
 		case 39:
-			playerTarget.player( "setCurrentTime", this.player( "getCurrentTime" ) + this.player( "getDuration" ) * 0.05 );
+			playerTarget.player( "setCurrentTime", this.parentNode.player( "getCurrentTime" ) + this.parentNode.player( "getDuration" ) * 0.05 );
 			break;
 
 		case 38:
@@ -801,7 +814,7 @@ $document.on( "keydown", selector, function( event ) {
 	}
 } );
 
-$document.on( "keyup", selector, function( event ) {
+$document.on( "keyup", ctrls, function( event ) {
 	if ( event.which === 32 && !( event.ctrlKey || event.altKey || event.metaKey ) ) {
 
 		// Allows the spacebar to be used for play/pause without double triggering
@@ -810,7 +823,7 @@ $document.on( "keyup", selector, function( event ) {
 } );
 
 $document.on( "wb-activate", selector, function() {
-    this.player( "play" );
+	this.player( "play" );
 } );
 
 $document.on( multimediaEvents, selector, function( event, simulated ) {
@@ -891,8 +904,8 @@ $document.on( multimediaEvents, selector, function( event, simulated ) {
 		// Skip to pointer from the querystring
 		skipTo = wb.pageUrlParts.params[ event.target.id ];
 		if ( skipTo ) {
-				skipTo = parseTime( skipTo );
-				eventTarget.player( "setCurrentTime", skipTo );
+			skipTo = parseTime( skipTo );
+			eventTarget.player( "setCurrentTime", skipTo );
 		}
 		break;
 

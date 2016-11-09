@@ -231,6 +231,7 @@ module.exports = (grunt) ->
 		"INTERNAL: Runs testing tasks except for SauceLabs testing"
 		[
 			"eslint"
+			"sasslint"
 		]
 	)
 
@@ -1213,7 +1214,9 @@ module.exports = (grunt) ->
 				tasks: "pages:docs"
 
 		eslint:
-			configFile: '.eslintrc'
+			options:
+				configFile: '.eslintrc.json'
+				quiet: true
 			all:
 				src: [
 					"src/**/*.js"

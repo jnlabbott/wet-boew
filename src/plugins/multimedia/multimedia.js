@@ -1,6 +1,6 @@
 /**
  * @title WET-BOEW Multimedia PLayer
- * @overview An accessible multimedia player for <audio> and <video> tags, including a Flash fallback
+ * @overview An accessible multimedia player for <audio> and <video> tags
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author WET Community
  */
@@ -348,7 +348,7 @@ var componentName = "wb-mltmd",
 
 	/**
 	 * @method playerApi
-	 * @description Normalizes the calls to the HTML5 media API and Flash Fallback
+	 * @description Normalizes the calls to the HTML5 media API
 	 * @param {String} fn The function to call
 	 * @param {object} args The arguments to send to the function call
 	 */
@@ -591,7 +591,7 @@ $document.on( initializedEvent, selector, function( event ) {
 			url = wb.getUrlParts( $this.find( "[type='video/youtube']" ).attr( "src" ) );
 
 			// lets set the flag for the call back
-			data.youTubeId = url.params.v;
+			data.youTubeId = url.params.v ? url.params.v : url.pathname.substr( 1 );
 
 			if ( youTube.ready === false ) {
 				$document.one( youtubeReadyEvent, function() {

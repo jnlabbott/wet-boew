@@ -8,6 +8,7 @@
  */
 .wb-overlay {
 	background-clip: border-box;
+	background-color: $overlay-background-color;
 	border: 0;
 	border-radius: 0;
 	display: none;
@@ -74,6 +75,7 @@
 	margin: auto;
 	right: 0;
 	top: 0;
+	width: 90%;
 }
 
 .wb-popup-full {
@@ -94,6 +96,8 @@
 	overflow-y: auto;
 
 	header {
+		background-color: $overlay-header-background-color;
+		color: $overlay-header-color;
 		display: block;
 		padding: 0 44px 0 1em;
 	}
@@ -101,6 +105,14 @@
 	.modal-title {
 		font-size: 1.15em;
 		padding: 10px 0;
+	}
+
+	&.wb-bar-t,
+	&.wb-bar-b {
+		background-color: $overlay-bar-background-color;
+		header {
+			background-color: $overlay-bar-background-color;
+		}
 	}
 
 	.mfp-close {
@@ -114,13 +126,15 @@
 	}
 
 	.overlay-close {
-		background-color: #000;
-		border-radius: 999px;
-		height: 1em;
-		line-height: 1em;
-		margin-right: 20px;
-		margin-top: 10px;
-		width: 1em;
+		&:not(.btn) {
+			background-color: #000;
+			border-radius: 999px;
+			height: 1em;
+			line-height: 1em;
+			margin-right: 20px;
+			margin-top: 10px;
+			width: 1em;
+		}
 	}
 }
 

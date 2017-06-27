@@ -18,7 +18,7 @@ var componentName = "wb-lbx",
 	initEvent = "wb-init" + selector,
 	setFocusEvent = "setfocus.wb",
 	dependenciesLoadedEvent = "deps-loaded" + selector,
-	extendedGlobal = false,
+	modalHideSelector = "#wb-tphp, body > header, body > main, body > footer",
 	$document = wb.doc,
 	callbacks, i18n, i18nText,
 
@@ -120,6 +120,7 @@ var componentName = "wb-lbx",
 		if ( !i18nText ) {
 			i18n = wb.i18n;
 			i18nText = {
+				fClose: i18n( "close" ),
 				tClose: i18n( "overlay-close" ) + i18n( "space" ) + i18n( "esc-key" ),
 				tLoading: i18n( "load" ),
 				gallery: {
@@ -142,10 +143,15 @@ var componentName = "wb-lbx",
 					var $item = this.currItem,
 						$content = this.contentContainer,
 						$wrap = this.wrap,
+						$modal = $wrap.find( ".modal-dialog" ),
 						$buttons = $wrap.find( ".mfp-close, .mfp-arrow" ),
 						len = $buttons.length,
 						i, button;
 
+					createCloseButton( $modal );
+
+					$document.find( "body" ).addClass( "wb-modal" );
+					$document.find( modalHideSelector ).attr( "aria-hidden", "true" );
 					for ( i = 0; i !== len; i += 1 ) {
 						button = $buttons[ i ];
 						button.innerHTML += "<span class='wb-inv'> " + button.title + "</span>";
@@ -161,6 +167,11 @@ var componentName = "wb-lbx",
                         .find( ".activate-open" )
                         .trigger( "wb-activate" );
 
+					this.contentContainer.attr( "data-pgtitle", document.getElementsByTagName( "H1" )[ 0 ].textContent );
+				},
+				close: function() {
+					$document.find( "body" ).removeClass( "wb-modal" );
+					$document.find( modalHideSelector ).removeAttr( "aria-hidden" );
 				},
 				change: function() {
 					var $item = this.currItem,
@@ -225,6 +236,7 @@ var componentName = "wb-lbx",
 					} else {
 						$response = $( mfpResponse.data );
 					}
+					createCloseButton( $response );
 
 					$response
 						.find( ".modal-title, h1" )
@@ -243,71 +255,46 @@ var componentName = "wb-lbx",
 
 				// Set the dependency i18nText only once
 				$.extend( true, $.magnificPopup.defaults, i18nText );
-				extendedGlobal = true;
 
 				$document.trigger( dependenciesLoadedEvent );
 			}
 		} );
+	},
+	createCloseButton = function( $modal ) {
+		if ( $modal !== null && $modal.hasClass( "modal-dialog" ) ) {
+			var footer = $modal.find( ".modal-footer" ).first(),
+				hasFooter = footer.length,
+				hasButton = hasFooter && $( footer ).find( ".popup-modal-dismiss" ).length !== 0,
+				closeClassFtr = "popup-modal-dismiss",
+				closeTextFtr = i18nText.fClose,
+				spanTextFtr, overlayCloseFtr;
+
+			if ( !hasButton ) {
+				if ( hasFooter ) {
+					spanTextFtr = footer.innerHTML + i18nText.tClose;
+				} else {
+					footer = document.createElement( "div" );
+					footer.setAttribute( "class", "modal-footer" );
+					footer.style.background = "#fff";
+					spanTextFtr = i18nText.tClose;
+				}
+				spanTextFtr = spanTextFtr.replace( "'", "&#39;" );
+
+				overlayCloseFtr = "<button type='button' id='ftrClose' class='btn btn-sm btn-primary pull-left " + closeClassFtr +
+					"' title='" + closeTextFtr + " " + spanTextFtr + "'>" +
+					closeTextFtr +
+					"<span class='wb-inv'>" + spanTextFtr + "</span></button>";
+
+				$( footer ).append( overlayCloseFtr );
+				if ( !hasFooter ) {
+					$modal.append( footer );
+				}
+			}
+		}
 	};
 
 // Bind the init event of the plugin
 $document.on( "timerpoke.wb " + initEvent, selector, init );
-
-$document.on( "keydown", ".mfp-wrap", function( event ) {
-	var $elm, $focusable, index, length;
-
-	// If the tab key is used and filter out any events triggered by descendants
-	if ( extendedGlobal && event.which === 9 ) {
-		event.preventDefault();
-		$elm = $( this );
-		$focusable = $elm.find( ":focusable" );
-		length = $focusable.length;
-		index = $focusable.index( event.target ) + ( event.shiftKey ? -1 : 1 );
-		if ( index === -1 ) {
-			index = length - 2;
-		} else if ( index === length - 1 ) {
-			index = 0;
-		}
-		$focusable.eq( index ).trigger( setFocusEvent );
-	}
-
-	/*
-	 * Since we are working with events we want to ensure that we are being passive about our control,
-	 * so returning true allows for events to always continue
-	 */
-	return true;
-} );
-
-/*
- * Sends focus to the close button if focus moves beyond the Lightbox (Jaws fix)
- */
-$document.on( "focus", ".lbx-end", function( event ) {
-	event.preventDefault();
-	$( this )
-		.closest( ".mfp-wrap" )
-			.find( ":focusable" )
-				.eq( 0 )
-					.trigger( setFocusEvent );
-
-	/*
-	 * Since we are working with events we want to ensure that we are being passive about our control,
-	 * so returning true allows for events to always continue
-	 */
-	return true;
-} );
-
-// Outside focus detection (for screen readers that exit the lightbox
-// outside the normal means)
-$document.on( "focusin", "body", function( event ) {
-
-	if ( extendedGlobal && $.magnificPopup.instance.currItem &&
-		$( event.target ).closest( ".mfp-wrap" ).length === 0 &&
-		$( ".popup-modal-dismiss" ).length === 0 ) {
-
-		// Close the popup
-		$.magnificPopup.close();
-	}
-} );
 
 // Handler for clicking on a same page link within the overlay to outside the overlay
 $document.on( "click vclick", ".mfp-wrap a[href^='#']", function( event ) {

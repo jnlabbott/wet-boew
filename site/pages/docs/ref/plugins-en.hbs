@@ -27,7 +27,7 @@
 	<li><a href="menu/menu-en.html">Menu</a> - Provides an interactive menu with optional sub-menus.</li>
 	<li><a href="multimedia/multimedia-en.html">Multimedia player</a> - Provides an accessible multimedia player for embedding video and audio into web pages.</li>
 	<li><a href="overlay/overlay-en.html">Overlay</a> - A flexible, responsive overlay plugin.</li>
-	<li><a href="prettify/prettify-en.html">Prettify</a> - Provides syntax highlighting of source code snippets in an HTML page using <a href="http://code.google.com/p/google-code-prettify/">google-code-prettify</a>.</li>
+	<li><a href="prettify/prettify-en.html">Prettify</a> - Provides syntax highlighting of source code snippets in an HTML page using <a href="https://github.com/google/code-prettify">google-code-prettify</a>.</li>
 	<li><a href="session-timeout/session-timeout-en.html">Session timeout</a> - Helps Web asset owners to provide session timeout and inactivity timeout functionality.</li>
 	<li><a href="share/share-en.html">Share widget</a> - Facilitates sharing Web content on social media platforms.</li>
 	<li><a href="tabs/tabs-en.html">Tabbed Interface</a> - Dynamically transforms multiple sections of content into a tabbed interface.</li>
@@ -36,3 +36,14 @@
 	<li><a href="toggle/toggle-en.html">Toggle</a> - Allows a link to toggle elements between on and off states.</li>
 	<li><a href="twitter/twitter-en.html">Twitter embedded timeline</a> - Helps with implementing Twitter embedded timelines.</li>
 </ul>
+
+<h2>Using your own plugin</h2>
+
+<p>In order to have your plugin working with WET:</p>
+<ol>
+	<li>Your plugin needs to follow the WET plugin initialisation.</li>
+	<li>Your script needs to be inserted after the <code>wet-boew.min.js</code> script in your page.</li>
+	<li>An element in your page needs to call the plugin by having the plugin name in its class atttribute.</li>
+</ol>
+
+<p>Take a look at the <a href="../../demos/helloworld/helloworld-en.html">Hello world</a> example.</p>

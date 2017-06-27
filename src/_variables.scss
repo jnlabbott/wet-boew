@@ -47,6 +47,8 @@ $link-color: #295376 !default;
 $link-hover-color: #0535d2 !default;
 
 // WET Custom
+$content-bg: null !default;
+$main-bg: null !default;
 $link-visited-color: #7834bc !default;
 
 
@@ -237,7 +239,7 @@ $tabpanel-border-width: 1px !default;
 
 $tablist-bg-color: #ebf2fc !default;
 $tablist-hover-bg-color: $clrMedium !default;
-$tablist-active-bg-color: #fff !default;
+$tablist-active-bg-color: null !default;
 
 $tablist-active-link-border-color: #666 !default;
 $tablist-active-link-border-style: solid !default;
@@ -258,6 +260,7 @@ $carousel-tablist-tabcount-color: #000 !default;
 $carousel-tabpanel-figcaption-color: #fff !default;
 $carousel-tabpanel-link-color: $carousel-tabpanel-figcaption-color !default;
 $carousel-tabpanel-figcaption-bg-color: $clrDarkBlue !default;
+$carousel-tabpanel-outline-offset: 2px !default;
 
 // Carousel Style 2 with Thumbnails
 $carousel-s2-tablist-controls-bg-color: $clrLight !default;
@@ -280,3 +283,27 @@ $carousel-s2-tablist-thumbnail-active-border-width: 10px !default;
 $txthl-bg-color: #ff0 !default;
 $txthl-color: #000 !default;
 $txthl-font-weight: 700 !default;
+
+
+//== Overlay
+//
+//##
+$overlay-background-color: #fff;
+$overlay-header-background-color: #2e5274;
+$overlay-header-color: #fff;
+$overlay-bar-background-color: #000;
+
+
+//
+// WET CUSTOM THEME VARIABLES
+//
+
+//== Mobile menu
+//
+//##
+$mb-pnl-background: #193451;
+$mb-pnl-header-background: $overlay-header-background-color;
+$mb-pnl-header-color: $overlay-header-color;
+$mb-pnl-body-background: #0e4164;
+$mb-pnl-body-color: #fff;
+$mb-pnl-body-link-color: #fff;

@@ -63,6 +63,13 @@ a {
 
 .dl-horizontal {
 	@media (min-width: $screen-sm-min) {
+		&.brdr-0 { // removes bordered for dl-horizontal
+			dt,
+			dd {
+				border: 0 !important;
+			}
+		}
+
 		dt {
 			border-top: 1px solid $clrMedium;
 			padding: 10px 10px 10px 0;
@@ -616,6 +623,20 @@ fieldset {
 	&[disabled] {
 		.btn {
 			@extend %border-style-solid;
+		}
+	}
+
+	/*
+	 *  Allows fieldSet/legend to have a bottom border under legend title
+	 *	https://github.com/wet-boew/wet-boew/issues/7766
+	 */
+	&.legend-brdr-bttm {
+		border-top: 0;
+
+		legend {
+			border-bottom: 1px solid $legend-border-color;
+			float: none;
+			margin-bottom: 10px;
 		}
 	}
 

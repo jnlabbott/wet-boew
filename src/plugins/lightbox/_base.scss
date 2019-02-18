@@ -4,7 +4,7 @@
  */
 
 @import "../../variables";
-@import "../../../lib/magnific-popup/src/css/main";
+@import "magnific-popup/src/css/main";
 
 %lightbox-button-outline {
 	outline: 1px dotted #fff;
@@ -62,6 +62,11 @@ body {
 
 .modal-body {
 	background: $clrWhite;
+}
+
+.modal-footer {
+	background: $clrWhite;
+	margin-top: 0;
 }
 
 .mfp-gallery {

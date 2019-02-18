@@ -133,7 +133,7 @@ var $modal, $modalLink, countdownInterval, i18n, i18nText,
 			temp = document.createElement( "div" );
 
 			// Create the modal dialog.  A temp <div> element is used so that its innerHTML can be set as a string.
-			temp.innerHTML = "<a class='wb-lbx lbx-modal mfp-hide' href='#" + componentName + "-modal'></a>" +
+			temp.innerHTML = "<a class='wb-lbx lbx-modal mfp-hide' href='#" + componentName + "-modal'>" + i18nText.timeoutTitle + "</a>" +
 				"<section id='" + componentName + "-modal' class='mfp-hide modal-dialog modal-content overlay-def'>" +
 				"<header class='modal-header'><h2 class='modal-title'>" + i18nText.timeoutTitle + "</h2></header>" +
 				"<div class='modal-body'></div>" +
@@ -217,7 +217,7 @@ var $modal, $modalLink, countdownInterval, i18n, i18nText,
 						openModal( {
 							body: "<p>" + i18nText.timeoutAlready + "</p>",
 							buttons: $( "<button type='button' class='" + confirmClass +
-								" btn btn-primary'>" + i18nText.buttonSignin + "</button>" )
+								" btn btn-primary popup-modal-dismiss'>" + i18nText.buttonSignin + "</button>" )
 									.data( "logouturl", settings.logouturl )
 						} );
 					}
@@ -245,7 +245,7 @@ var $modal, $modalLink, countdownInterval, i18n, i18nText,
 		clearTimeout( $( event.target ).data( keepaliveEvent ) );
 
 		$buttonContinue = $( buttonStart + confirmClass +
-			" btn btn-primary'>" + i18nText.buttonContinue + buttonEnd )
+			" btn btn-primary popup-modal-dismiss'>" + i18nText.buttonContinue + buttonEnd )
 				.data( settings )
 				.data( "start", getCurrentTime() );
 		$buttonEnd = $( buttonStart + confirmClass + " btn btn-default'>" +

@@ -40,6 +40,7 @@ module.exports = (grunt) ->
 			"sprites"
 			"css"
 			"js"
+			"string-replace"
 		]
 	)
 
@@ -93,6 +94,7 @@ module.exports = (grunt) ->
 		"Only needed when the repo is first cloned"
 		[
 #			"modernizr"
+			"wget:jqueryOldIE"
 		]
 	)
 
@@ -144,7 +146,7 @@ module.exports = (grunt) ->
 		"INTERNAL: Compiles Sass and copies third party CSS to the dist folder"
 		[
 			"sass"
-			"autoprefixer"
+			"postcss"
 			"csslint:unmin"
 			"usebanner:css"
 		]
@@ -233,6 +235,7 @@ module.exports = (grunt) ->
 		[
 			"eslint"
 			"sasslint"
+			"lintspaces"
 		]
 	)
 
@@ -308,12 +311,12 @@ module.exports = (grunt) ->
 		pkg: @file.readJSON "package.json"
 		coreDist: "dist/wet-boew"
 		themeDist: "dist/theme-wet-boew"
-		jqueryVersion: @file.readJSON "lib/jquery/bower.json"
-		jqueryOldIEVersion: @file.readJSON "lib/jquery-oldIE/bower.json"
+		jqueryVersion: "<%= pkg.dependencies.jquery %>"
+		jqueryOldIEVersion: "1.12.4"
+		MathJaxVersion: "<%= pkg.dependencies.mathjax %>"
 		banner: "/*!\n * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)\n * wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html\n" +
 				" * v<%= pkg.version %> - " + "<%= grunt.template.today('yyyy-mm-dd') %>\n *\n */"
 		modernizrBanner: "/*! Modernizr (Custom Build) | MIT & BSD */\n"
-		glyphiconsBanner: "/*!\n * GLYPHICONS Halflings for Twitter Bootstrap by GLYPHICONS.com | Licensed under http://www.apache.org/licenses/LICENSE-2.0\n */"
 		i18nGDocsID: "1BmMrKN6Rtx-dwgPNEZD6AIAQdI4nNlyVVVCml0U594o"
 		i18nGDocsSheet: 1
 
@@ -341,7 +344,7 @@ module.exports = (grunt) ->
 					npmInstall: false
 
 		clean:
-			dist: ["dist", "src/base/partials/*sprites*"]
+			dist: ["dist"]
 
 		# Task configuration.
 		wget:
@@ -350,6 +353,17 @@ module.exports = (grunt) ->
 					overwrite: true
 				src: "https://docs.google.com/spreadsheets/d/<%= i18nGDocsID %>/export?gid=<%= i18nGDocsSheet %>&format=csv"
 				dest: "src/i18n/i18n.csv"
+
+			jqueryOldIE:
+				options:
+					baseUrl: "https://ajax.googleapis.com/ajax/libs/jquery/<%= jqueryOldIEVersion %>/"
+					overwrite: true
+				src: [
+					"jquery.js"
+					"jquery.min.js"
+					"jquery.min.map"
+				]
+				dest: "lib/jquery-oldIE"
 
 		concat:
 			options:
@@ -375,10 +389,9 @@ module.exports = (grunt) ->
 					stripBanners: false
 				src: [
 					"dep/modernizr-custom.js"
-					"lib/respond/src/respond.js"
 					"lib/excanvas/excanvas.js"
-					"lib/html5shiv/dist/html5shiv-printshiv.js"
-					"lib/es5-shim/es5-shim.js"
+					"node_modules/html5shiv/dist/html5shiv-printshiv.js"
+					"node_modules/es5-shim/es5-shim.js"
 					"src/core/wb.js"
 					"!src/plugins/**/test.js"
 					"!src/plugins/**/assets/*.js"
@@ -415,7 +428,7 @@ module.exports = (grunt) ->
 						lang = filepath.replace grunt.config( "coreDist" ) + "/js/i18n/", ""
 						# jQuery validation uses an underscore for locals
 						lang = lang.replace "_", "-"
-						validationPath = "lib/jquery-validation/src/localization/"
+						validationPath = "node_modules/jquery-validation/dist/localization/"
 
 						# Check and append message file
 						messagesPath = validationPath + "messages_" + lang
@@ -467,8 +480,8 @@ module.exports = (grunt) ->
 				layout: "default.hbs"
 				environment:
 					root: "/v4.0-ci/unmin"
-					jqueryVersion: "<%= jqueryVersion.version %>"
-					jqueryOldIEVersion: "<%= jqueryOldIEVersion.version %>"
+					jqueryVersion: "<%= jqueryVersion %>"
+					jqueryOldIEVersion: "<%= jqueryOldIEVersion %>"
 				assets: "dist/unmin"
 
 			theme:
@@ -575,22 +588,75 @@ module.exports = (grunt) ->
 				staticImagePath: '#{$wb-assets-path}'
 				output: "scss"
 
+		lintspaces:
+			all:
+				src: [
+						# Root files
+						".*rc"
+						".editorconfig"
+						".eslint*"
+						".git*"
+						".*.{json,yml}"
+						".npmignore"
+						"*.{json,md}"
+						"Gruntfile.coffee"
+						"Licen?e-*.txt"
+						"Rakefile"
+
+						# Folders
+						"dep/**"
+						"script/**"
+						"site/**"
+						"src/**"
+						"theme/**"
+
+						# Exemptions...
+
+						# Images
+						"!site/pages/docs/img/*.{jpg,png}"
+						"!src/plugins/**/*.{jpg,png}"
+						"!src/polyfills/**/*.{jpg,png}"
+						"!theme/assets/*.{ico,jpg,png}"
+
+						# Docker environment file
+						# Empty file that gets populated in a manner that goes against .editorconfig settings during the main Travis-CI build.
+						"!script/docker/env"
+
+						# Tracked third party files
+						# Prevents lintspaces from immediately aborting upon encountering .editorconfig properties that use the "unset" value.
+						"!dep/modernizr-custom.js"
+						"!src/polyfills/events/mobile.js"
+						"!src/polyfills/slider/slider.js"
+
+						# Untracked generated files
+						"!site/data/i18n/*.json"
+						"!src/plugins/*/sprites/_sprites_*.scss"
+					],
+				options:
+					editorconfig: ".editorconfig",
+					ignores: [
+						"js-comments"
+					],
+					showCodes: true
+
 		sasslint:
 			options:
 				configFile: ".sass-lint.yml"
 			all:
 				expand: true
 				src: [
-						"**/*.scss"
-						"!lib/**"
-						"!node_modules/**"
-						"!dist/**"
-						"!wet-boew-dist/**"
+						"site/**/*.scss"
+						"src/**/*.scss"
+						"theme/**/*.scss"
 						"!src/**/sprites/**"
 					]
 
 		# Compiles the Sass files
 		sass:
+			options:
+				includePaths: [
+					"node_modules"
+				]
 			all:
 				files: [
 					expand: true
@@ -648,18 +714,19 @@ module.exports = (grunt) ->
 					ext: ".css"
 				]
 
-		autoprefixer:
+		postcss:
 			# Only vendor prefixing and no IE8
 			modern:
 				options:
-					browsers: [
-						"last 2 versions"
-						"android >= 2.3"
-						"bb >= 7"
-						"ff >= 17"
-						"ie > 8"
-						"ios 5"
-						"opera 12.1"
+					processors: [
+						require("autoprefixer")(
+							browsers: [
+								"last 2 versions"
+								"bb >= 10"
+								"Firefox ESR"
+								"ie > 10"
+							]
+						)
 					]
 				files: [
 					{
@@ -686,14 +753,15 @@ module.exports = (grunt) ->
 			# Needs both IE8 and vendor prefixing
 			mixed:
 				options:
-					browsers: [
-						"last 2 versions"
-						"android >= 2.3"
-						"bb >= 7"
-						"ff >= 17"
-						"ie >= 8"
-						"ios 5"
-						"opera 12.1"
+					processors: [
+						require("autoprefixer")(
+							browsers: [
+								"last 2 versions"
+								"bb >= 10"
+								"Firefox ESR"
+								"ie > 10"
+							]
+						)
 					]
 				files: [
 					cwd: "<%= coreDist %>/css/polyfills"
@@ -909,10 +977,10 @@ module.exports = (grunt) ->
 					ignore: [
 						"Element “head” is missing a required instance of child element “title”."
 						"Element “li” not allowed as child of element “body” in this context. (Suppressing further errors from this subtree.)"
-						"The “details” element is not supported properly by browsers yet. It would probably be better to wait for implementations."
 						"Start tag seen without seeing a doctype first. Expected “<!DOCTYPE html>”."
 						"Section lacks heading. Consider using “h2”-“h6” elements to add identifying headings to all sections."
 					]
+					noLangDetect: true
 				src: [
 					"dist/unmin/demos/**/ajax/**/*.html"
 					"dist/unmin/assets/*.html"
@@ -920,10 +988,14 @@ module.exports = (grunt) ->
 			all:
 				options:
 					ignore: [
-						"The “details” element is not supported properly by browsers yet. It would probably be better to wait for implementations."
 						"The “date” input type is not supported in all browsers. Please be sure to test, and consider using a polyfill."
 						"The “time” input type is not supported in all browsers. Please be sure to test, and consider using a polyfill."
 						"The “longdesc” attribute on the “img” element is obsolete. Use a regular “a” element to link to the description."
+						# TODO: Should be removed and fixed now that HTML5 specs updated
+						"The “main” role is unnecessary for element “main”."
+						"The “contentinfo” role is unnecessary for element “footer”."
+						"The “navigation” role is unnecessary for element “nav”."
+						"The “banner” role is unnecessary for element “header”."
 					]
 				src: [
 					"dist/unmin/**/*.html"
@@ -941,7 +1013,7 @@ module.exports = (grunt) ->
 						"W002" # `<head>` is missing X-UA-Compatible `<meta>` tag that disables old IE compatibility modes
 						"W005" # Unable to locate jQuery, which is required for Bootstrap's JavaScript plugins to work; however, you might not be using Bootstrap's JavaScript
 						# TODO: The rules below should be resolved
-						"W009" # Using empty spacer columns isn't necessary with Bootstrap's grid. So instead of having an empty grid column with `class="col-xs-12"` , just add `class="col-xs-offset-12"` to the next grid column.
+						"W009" # Using empty spacer columns isn't necessary with Bootstrap's grid. So instead of having an empty grid column with `class=\"col-xs-12"` , just add `class=\"col-xs-offset-12"` to the next grid column.
 						"W010" # Using `.pull-left` or `.pull-right` as part of the media object component is deprecated as of Bootstrap v3.3.0. Use `.media-left` or `.media-right` instead.
 						"E013" # Only columns (`.col-*-*`) may be children of `.row`s
 						"E014" # Columns (`.col-*-*`) can only be children of `.row`s or `.form-group`s
@@ -1003,7 +1075,7 @@ module.exports = (grunt) ->
 
 		copy:
 			bootstrap:
-				cwd: "lib/bootstrap-sass-official/assets/fonts/bootstrap"
+				cwd: "node_modules/bootstrap-sass/assets/fonts/bootstrap"
 				src: "*.*"
 				dest: "<%= coreDist %>/fonts"
 				expand: true
@@ -1043,17 +1115,10 @@ module.exports = (grunt) ->
 				,
 					cwd: "lib"
 					src: [
-						"jquery-pjax/jquery.pjax.js"
 						"flot/jquery.flot.js"
 						"flot/jquery.flot.pie.js"
 						"flot/jquery.flot.canvas.js"
 						"SideBySideImproved/jquery.flot.orderBars.js"
-						"jquery-validation/dist/jquery.validate.js"
-						"jquery-validation/dist/additional-methods.js"
-						"magnific-popup/dist/jquery.magnific-popup.js"
-						"google-code-prettify/src/*.js"
-						"DataTables/media/js/jquery.dataTables.js"
-						"proj4/dist/proj4.js"
 						"openlayers/OpenLayers.debug.js"
 					]
 					dest: "<%= coreDist %>/js/deps"
@@ -1062,14 +1127,43 @@ module.exports = (grunt) ->
 					expand: true
 					flatten: true
 				,
-					cwd: "lib/jquery/dist"
+					cwd: "node_modules"
+					src: [
+						"code-prettify/src/*.js"
+						"datatables/media/js/jquery.dataTables.js"
+						"jquery-validation/dist/jquery.validate.js"
+						"jquery-validation/dist/additional-methods.js"
+						"magnific-popup/dist/jquery.magnific-popup.js"
+						"proj4/dist/proj4.js"
+						"unorm/lib/unorm.js"
+					]
+					dest: "<%= coreDist %>/js/deps"
+					rename: (dest, src) ->
+						return dest + "/" + src.replace ".debug", ""
+					expand: true
+					flatten: true
+				,
+					cwd: "node_modules/mathjax"
+					src: [
+						"MathJax.js"
+						"config/**"
+						"extensions/**"
+						"jax/**"
+						"localization/**"
+						"fonts/HTML-CSS/TeX/woff/**"
+						"fonts/HTML-CSS/TeX/otf/**"
+					]
+					dest: "<%= coreDist %>/js/MathJax/"
+					expand: true
+				,
+					cwd: "node_modules/jquery/dist"
 					src: "*.*"
-					dest: "<%= coreDist %>/js/jquery/<%= jqueryVersion.version %>"
+					dest: "<%= coreDist %>/js/jquery/<%= jqueryVersion %>"
 					expand: true
 				,
 					cwd: "lib/jquery-oldIE/dist"
 					src: "*.*"
-					dest: "<%= coreDist %>/js/jquery/<%= jqueryOldIEVersion.version %>"
+					dest: "<%= coreDist %>/js/jquery/<%= jqueryOldIEVersion %>"
 					expand: true
 				,
 					cwd: "src"
@@ -1219,7 +1313,10 @@ module.exports = (grunt) ->
 				livereload: true
 			js:
 				files: "<%= eslint.all.src %>"
-				tasks: "js"
+				tasks: [
+					"js"
+					"string-replace"
+				]
 			css:
 				files: [
 					"src/**/*.scss"
@@ -1329,6 +1426,15 @@ module.exports = (grunt) ->
 				options:
 					testname: "Local Test - <%= grunt.template.today('yyyy-mm-dd hh:MM') %>"
 
+		"string-replace":
+			inline:
+				files:
+					"dist/wet-boew/js/": "dist/wet-boew/js/*.js"
+				options:
+					replacements: [
+						pattern: "WET_BOEW_VERSION_MATHJAX"
+						replacement: "<%= MathJaxVersion %>"
+					]
 
 		"gh-pages":
 			options:
@@ -1407,7 +1513,17 @@ module.exports = (grunt) ->
 				]
 				expand: true
 
-	require( "load-grunt-tasks" )( grunt )
+		markdownlint:
+			all:
+				options:
+					config: grunt.file.readJSON(".markdownlint.json")
+				src: [
+					'**/*.md'
+					'!node_modules/**/*.md'
+					'!lib/**/*.md'
+				]
+
+	require( "load-grunt-tasks" )( grunt, requireResolution: true )
 
 	require( "time-grunt" )( grunt )
 	@

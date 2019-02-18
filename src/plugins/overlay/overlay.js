@@ -78,7 +78,7 @@ var componentName = "wb-overlay",
 					footer.style.border = "0";
 				}
 
-				overlayCloseFtr = "<button type='button' id='ftrClose' class='btn btn-sm btn-primary " + closeClassFtr +
+				overlayCloseFtr = "<button type='button' class='btn btn-sm btn-primary " + closeClassFtr +
 					"' style='" + buttonStyle +
 					"' title='" + closeTextFtr + " " + spanTextFtr + "'>" +
 					closeTextFtr +
@@ -99,7 +99,7 @@ var componentName = "wb-overlay",
 				closeText = i18nText.closeOverlay;
 			}
 			closeText = closeText.replace( "'", "&#39;" );
-			overlayClose = "<button type='button' id='hdrClose' class='mfp-close " + closeClass +
+			overlayClose = "<button type='button' class='mfp-close " + closeClass +
 				"' title='" + closeText + "'>&#xd7;<span class='wb-inv'> " +
 				closeText + "</span></button>";
 
@@ -240,13 +240,13 @@ $document.on( "click vclick", "." + closeClass, function( event ) {
 } );
 
 // Handler for clicking on a source link for the overlay
-$document.on( "click vclick", "." + linkClass, function( event ) {
+$document.on( "click vclick keydown", "." + linkClass, function( event ) {
 	var which = event.which,
 		sourceLink = event.currentTarget,
 		overlayId = sourceLink.hash.substring( 1 );
 
 	// Ignore if not initialized and middle/right mouse buttons
-	if ( initialized && ( !which || which === 1 ) ) {
+	if ( initialized && ( !which || which === 1 || which === 32 ) ) {
 		event.preventDefault();
 
 		// Introduce a delay to prevent outside activity detection

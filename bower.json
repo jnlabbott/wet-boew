@@ -1,6 +1,6 @@
 {
   "name": "wet-boew",
-  "version": "4.0.26-development",
+  "version": "4.0.30",
   "homepage": "http://wet-boew.github.io",
   "authors": [
     "WET-BOEW Team"
@@ -27,21 +27,15 @@
     "es5-shim": "2.3.0",
     "excanvas": "*",
     "flot": "0.8.3",
-    "google-code-prettify": "1.0.4",
-    "html5shiv": "3.7.2",
-    "jquery": "2.1.4",
-    "jquery-oldIE": "jquery#1.11.1",
-    "jquery-pjax": "1.9.6",
-    "jquery-validation": "1.15.1",
-    "magnific-popup": "https://github.com/wet-boew/Magnific-Popup.git#1.0.0+keyboard_trap_fix",
     "openlayers": "https://github.com/wet-boew/openlayers-dist.git#2.13.1",
     "proj4": "2.3.3",
     "respond": "1.4.2",
     "selectivizr": "1.0.2",
-	"toastr": "2.1.2",
-	"jstree": "3.3.1",
-	"chosen": "1.4.1",
-	"select2": "4.0.2"
+    "toastr": "2.1.2",
+    "jstree": "3.3.1",
+    "chosen": "1.4.1",
+    "select2": "4.0.2"
+    "SideBySideImproved": "https://github.com/pkoltermann/SideBySideImproved.git"
   },
   "moduleType": [
     "globals"

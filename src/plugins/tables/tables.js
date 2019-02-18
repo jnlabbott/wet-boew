@@ -4,7 +4,7 @@
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @jeresiv
  */
- /*jshint scripturl:true*/
+/*jshint scripturl:true*/
 ( function( $, window, wb ) {
 "use strict";
 
@@ -79,6 +79,9 @@ var componentName = "wb-tables",
 
 			Modernizr.load( {
 				load: [ "site!deps/jquery.dataTables" + wb.getMode() + ".js" ],
+				testReady: function() {
+					return ( $.fn.dataTable && $.fn.dataTable.version );
+				},
 				complete: function() {
 					var $elm = $( "#" + elmId ),
 						dataTableExt = $.fn.dataTableExt;
@@ -132,31 +135,40 @@ $document.on( "init.dt draw.dt", selector, function( event, settings ) {
 		ol = document.createElement( "OL" ),
 		li = document.createElement( "LI" );
 
-	// Update Pagination List
-	for ( var i = 0; i < paginate_buttons.length; i++ ) {
-		var item = li.cloneNode( true );
-		item.appendChild( paginate_buttons[ i ] );
-		ol.appendChild( item );
-	}
+	// Determine if Pagination required
+	if ( paginate_buttons.length === 1 || ( pagination.find( ".previous, .next" ).length === 2 && paginate_buttons.length < 4 ) ) {
+		pagination.addClass( "hidden" );
+	} else {
 
-	ol.className = "pagination mrgn-tp-0 mrgn-bttm-0";
-	pagination.empty();
-	pagination.append( ol );
+		// Make sure Pagination is visible
+		pagination.removeClass( "hidden" );
 
-	// Update the aria-pressed properties on the pagination buttons
-	// Should be pushed upstream to DataTables
-	$elm.next( ".bottom" ).find( ".paginate_button" )
-		.attr( {
-			"role": "button",
-			"href": "javascript:;"
-		} )
-		.not( ".previous, .next" )
-			.attr( "aria-pressed", "false" )
-			.html( function( index, oldHtml ) {
-				return "<span class='wb-inv'>" + i18nText.paginate.page + " </span>" + oldHtml;
+		// Update Pagination List
+		for ( var i = 0; i < paginate_buttons.length; i++ ) {
+			var item = li.cloneNode( true );
+			item.appendChild( paginate_buttons[ i ] );
+			ol.appendChild( item );
+		}
+
+		ol.className = "pagination mrgn-tp-0 mrgn-bttm-0";
+		pagination.empty();
+		pagination.append( ol );
+
+		// Update the aria-pressed properties on the pagination buttons
+		// Should be pushed upstream to DataTables
+		$elm.next( ".bottom" ).find( ".paginate_button" )
+			.attr( {
+				"role": "button",
+				"href": "javascript:;"
 			} )
-			.filter( ".current" )
-				.attr( "aria-pressed", "true" );
+			.not( ".previous, .next" )
+				.attr( "aria-pressed", "false" )
+				.html( function( index, oldHtml ) {
+					return "<span class='wb-inv'>" + i18nText.paginate.page + " </span>" + oldHtml;
+				} )
+				.filter( ".current" )
+					.attr( "aria-pressed", "true" );
+	}
 
 	if ( event.type === "init" ) {
 
@@ -179,13 +191,31 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 	// Lets reset the search;
 	$datatable.search( "" ).columns().search( "" );
 
-    // Lets loop throug all options
+	// Lets loop throug all options
+	var $value = "", $lastColumn = -1;
 	$form.find( "[name]" ).each( function() {
 		var $elm = $( this ),
-			$value = ( $elm.is( "select" ) ) ? $elm.find( "option:selected" ).val() : $elm.val();
+			$column = parseInt( $elm.attr( "data-column" ), 10 );
+
+		if ( $elm.is( "select" ) ) {
+			$value = $elm.find( "option:selected" ).val();
+		} else if ( $elm.is( ":checkbox" ) ) {
+			if ( $column !== $lastColumn && $lastColumn !== -1 ) {
+				$value = "";
+			}
+			$lastColumn = $column;
+
+			if ( $elm.is( ":checked" ) ) {
+				$value += ( $value.length > 0 ) ? "|" : "";
+				$value += $elm.val();
+			}
+		} else {
+			$value = $elm.val();
+		}
 
 		if ( $value ) {
-			$datatable.column( parseInt( $elm.attr( "data-column" ), 10 ) ).search( $value ).draw();
+			$value = $value.replace( /\s/g, "\\s*" );
+			$datatable.column( $column ).search( "(" + $value + ")", true ).draw();
 		}
 	} );
 
@@ -201,6 +231,8 @@ $document.on( "click", ".wb-tables-filter [type='reset']", function( event ) {
 	$datatable.search( "" ).columns().search( "" ).draw();
 
 	$form.find( "select" ).prop( "selectedIndex", 0 );
+	$form.find( "input:checkbox" ).prop( "checked", false );
+	$form.find( "input[type=date]" ).val( "" );
 
 	return false;
 } );

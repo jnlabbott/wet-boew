@@ -7,9 +7,17 @@
 	"tag": "formvalid",
 	"parentdir": "formvalid",
 	"altLangPrefix": "formvalid",
-	"dateModified": "2015-10-19"
+	"dateModified": "2018-07-04"
 }
 ---
+
+<ul>
+	<li><a href="formvalid-en.html">Form Validation</a></li>
+	<li><a href="formvalid-server-en.html">Merge Server-Client Errors</a></li>
+</ul>
+
+<hr />
+
 <section>
 	<h2>Purpose</h2>
 	<p>Provides generic validation and error message handling for Web forms.</p>
@@ -187,20 +195,20 @@
 		&lt;/div&gt;</code></pre>
 				</details>
 
-                <div class="form-group">
-                    <label for="number1"><span class="field-name">Number</span> (between -1 and 1 by step 0.1)</label>
-                    <input class="form-control" id="number1" name="number1" type="number" min="-1" max="1" step="0.1">
-                </div>
-                <details class="mrgn-bttm-md">
-                    <summary>View code</summary>
-                    <pre><code>&lt;div class="wb-frmvld"&gt;
+				<div class="form-group">
+					<label for="number1"><span class="field-name">Number</span> (between -1 and 1 by step 0.1)</label>
+					<input class="form-control" id="number1" name="number1" type="number" min="-1" max="1" step="0.1">
+				</div>
+				<details class="mrgn-bttm-md">
+					<summary>View code</summary>
+					<pre><code>&lt;div class="wb-frmvld"&gt;
 &lt;form action="#" method="get" id="validation-example"&gt;
 ...
 &lt;div class="form-group"&gt;
 	&lt;label for="number1"&gt;&lt;span class="field-name"&gt;Number&lt;/span&gt; (between -a and 1 by step 0.1)&lt;/label&gt;
 	&lt;input class="form-control" id="number1" name="number1" type="number" min="-1" max="1" step="0.1" /&gt;
 &lt;/div&gt;</code></pre>
-                </details>
+				</details>
 
 				<div class="form-group">
 					<label for="an1"><span class="field-name">Alphanumeric</span> (at least 4 characters)</label>

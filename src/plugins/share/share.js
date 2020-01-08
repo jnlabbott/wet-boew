@@ -53,69 +53,57 @@ var componentName = "wb-share",
 
 			// The definitions of the available bookmarking sites, in URL use
 			// '{u}' for the page URL, '{t}' for the page title, {i} for the image, and '{d}' for the description
-			bitly: {
-				name: "bitly",
-				url: "https://bitly.com/a/bitmarklet?u={u}"
-			},
 			blogger: {
 				name: "Blogger",
-				url: "http://www.blogger.com/blog_this.pyra?t=&amp;u={u}&amp;n={t}"
-			},
-			delicious: {
-				name: "Delicious",
-				url: "http://delicious.com/post?url={u}&amp;title={t}"
-			},
-			digg: {
-				name: "Digg",
-				url: "http://digg.com/submit?phase=2&amp;url={u}&amp;title={t}"
+				url: "https://www.blogger.com/blog_this.pyra?t=&amp;u={u}&amp;n={t}"
 			},
 			diigo: {
 				name: "Diigo",
-				url: "http://www.diigo.com/post?url={u}&amp;title={t}"
+				url: "https://www.diigo.com/post?url={u}&amp;title={t}"
 			},
 			facebook: {
 				name: "Facebook",
-				url: "http://www.facebook.com/sharer.php?u={u}&amp;t={t}"
+				url: "https://www.facebook.com/sharer.php?u={u}&amp;t={t}"
 			},
 			gmail: {
 				name: "Gmail",
 				url: "https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su={t}&body={u}%0A{d}"
 			},
-			googleplus: {
-				name: "Google+",
-				url: "https://plus.google.com/share?url={u}&amp;hl=" + document.documentElement.lang
-			},
 			linkedin: {
 				name: "LinkedIn®",
-				url: "http://www.linkedin.com/shareArticle?mini=true&amp;url={u}&amp;title={t}&amp;ro=false&amp;summary={d}&amp;source="
+				url: "https://www.linkedin.com/shareArticle?mini=true&amp;url={u}&amp;title={t}&amp;ro=false&amp;summary={d}&amp;source="
 			},
 			myspace: {
 				name: "MySpace",
-				url: "http://www.myspace.com/Modules/PostTo/Pages/?u={u}&amp;t={t}"
+				url: "https://www.myspace.com/Modules/PostTo/Pages/?u={u}&amp;t={t}"
 			},
 			pinterest: {
 				name: "Pinterest",
-				url: "http://www.pinterest.com/pin/create/button/?url={u}&amp;media={i}&amp;description={t}"
+				url: "https://www.pinterest.com/pin/create/button/?url={u}&amp;media={i}&amp;description={t}"
 			},
 			reddit: {
 				name: "reddit",
-				url: "http://reddit.com/submit?url={u}&amp;title={t}"
+				url: "https://reddit.com/submit?url={u}&amp;title={t}"
 			},
-			stumbleupon: {
-				name: "StumbleUpon",
-				url: "http://www.stumbleupon.com/submit?url={u}&amp;title={t}"
+			tinyurl: {
+				name: "TinyURL",
+				url: "https://tinyurl.com/create.php?url={u}"
 			},
 			tumblr: {
 				name: "tumblr",
-				url: "http://www.tumblr.com/share/link?url={u}&amp;name={t}&amp;description={d}"
+				url: "https://www.tumblr.com/share/link?url={u}&amp;name={t}&amp;description={d}"
 			},
 			twitter: {
 				name: "Twitter",
-				url: "http://twitter.com/home?status={t}%20{u}"
+				url: "https://twitter.com/intent/tweet?text={t}&url={u}"
 			},
 			yahoomail: {
 				name: "Yahoo! Mail",
-				url: "http://compose.mail.yahoo.com/?to=&subject={t}&body={u}%0A{d}"
+				url: "https://compose.mail.yahoo.com/?to=&subject={t}&body={u}%0A{d}"
+			},
+			whatsapp: {
+				name: "Whatsapp",
+				url: "https://api.whatsapp.com/send?text={t}%0A{d}%0A{u}"
 			}
 		}
 	},
@@ -217,7 +205,7 @@ var componentName = "wb-share",
 							.replace( /\{d\}/, pageDescription );
 					panel += "<li><a href='" + url + "' class='" + shareLink +
 						" " + ( siteProperties.isMailto ? "email" : key ) +
-						" btn btn-default' target='_blank'>" +
+						" btn btn-default' target='_blank' rel='noreferrer noopener'>" +
 						siteProperties.name + "</a></li>";
 				}
 

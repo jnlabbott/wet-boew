@@ -1,5 +1,6 @@
 path = require("path")
 fs = require("fs")
+sass = require("node-sass")
 
 module.exports = (grunt) ->
 
@@ -37,7 +38,7 @@ module.exports = (grunt) ->
 			"checkDependencies"
 			"clean:dist"
 			"assets"
-			"sprites"
+			"sprite"
 			"css"
 			"js"
 			"string-replace"
@@ -418,6 +419,7 @@ module.exports = (grunt) ->
 				src: [
 					"src/test.js"
 					"src/**/test.js"
+					"!src/polyfills/datepicker/test.js"
 				]
 				dest: "dist/unmin/test/tests.js"
 
@@ -459,6 +461,8 @@ module.exports = (grunt) ->
 			css:
 				options:
 					banner: "@charset \"utf-8\";\n<%= banner %>"
+					position: "replace"
+					replace: "@charset \"UTF-8\";"
 				files:
 					src: [
 						"<%= coreDist %>/css/*.*"
@@ -570,23 +574,12 @@ module.exports = (grunt) ->
 				expand: true
 
 		#Generate the sprites including the stylesheet
-		sprites:
+		sprite:
 			share:
-				src: [
-					"src/plugins/share/sprites/*.png"
-				]
-				css: "src/plugins/share/sprites/_sprites_share.scss"
-				map: "src/plugins/share/assets/sprites_share.png"
-				staticImagePath: '#{$wb-assets-path}'
-				output: "scss"
-			geomap:
-				src: [
-					"src/plugins/geomap/sprites/*.png"
-				]
-				css: "src/plugins/geomap/sprites/_sprites_geomap.scss"
-				map: "src/plugins/geomap/assets/sprites_geomap.png"
-				staticImagePath: '#{$wb-assets-path}'
-				output: "scss"
+				src: "src/plugins/share/sprites/*.png"
+				destCss: "src/plugins/share/sprites/_sprites_share.scss"
+				dest: "src/plugins/share/assets/sprites_share.png"
+				imgPath: '#{$wb-assets-path}/sprites_share.png'
 
 		lintspaces:
 			all:
@@ -654,6 +647,7 @@ module.exports = (grunt) ->
 		# Compiles the Sass files
 		sass:
 			options:
+				implementation: sass,
 				includePaths: [
 					"node_modules"
 				]
@@ -988,9 +982,6 @@ module.exports = (grunt) ->
 			all:
 				options:
 					ignore: [
-						"The “date” input type is not supported in all browsers. Please be sure to test, and consider using a polyfill."
-						"The “time” input type is not supported in all browsers. Please be sure to test, and consider using a polyfill."
-						"The “longdesc” attribute on the “img” element is obsolete. Use a regular “a” element to link to the description."
 						# TODO: Should be removed and fixed now that HTML5 specs updated
 						"The “main” role is unnecessary for element “main”."
 						"The “contentinfo” role is unnecessary for element “footer”."
@@ -1008,6 +999,9 @@ module.exports = (grunt) ->
 		bootlint:
 			all:
 				options:
+					stoponerror: true
+					stoponwarning: true
+					showallerrors: true
 					relaxerror: [
 						# We recommend handling this through the server headers so it never appears in the markup
 						"W002" # `<head>` is missing X-UA-Compatible `<meta>` tag that disables old IE compatibility modes
@@ -1178,6 +1172,14 @@ module.exports = (grunt) ->
 					cwd: "src/plugins"
 					src: [
 						"**/deps/*.js"
+					]
+					dest: "<%= coreDist %>/js/deps"
+					expand: true
+					flatten: true
+				,
+					cwd: "node_modules"
+					src: [
+						"openlayers/dist/ol.js"
 					]
 					dest: "<%= coreDist %>/js/deps"
 					expand: true

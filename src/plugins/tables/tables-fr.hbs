@@ -436,7 +436,7 @@
 	<div class="clearfix"></div>
 
 	<h3>Exemple d'options</h3>
-	<p>Le <a href="http://www.datatables.net/ref">DataTables API</a> (en anglais seulement) est entièrement accessible par le <code>data-wb-tables</code> attribut à l'aide d'un tableau JSON.</p>
+	<p>Le <a href="https://www.datatables.net/ref">DataTables API</a> (en anglais seulement) est entièrement accessible par le <code>data-wb-tables</code> attribut à l'aide d'un tableau JSON.</p>
 	<pre>&lt;table class="wb-tables table table-striped table-hover" data-wb-tables='{ "ordering": false }'&gt;</pre>
 	<table class="wb-tables table table-striped table-hover" data-wb-tables='{ "ordering": false }'>
 		<thead>
@@ -979,7 +979,7 @@
 		</tbody>
 	</table>
 	<h3>Exemple de filtrage</h3>
-	<p>Le <a href="http://www.datatables.net/ref">DataTables API</a> (en anglais seulement) est entièrement accessible par le <code>data-wb-tables</code> attribut à l'aide d'un tableau JSON et pour filtrer vous pouvez utilizer le class <code>.wb-tables-filter</code> </p>
+	<p>Le <a href="https://www.datatables.net/ref">DataTables API</a> (en anglais seulement) est entièrement accessible par le <code>data-wb-tables</code> attribut à l'aide d'un tableau JSON et pour filtrer vous pouvez utilizer le class <code>.wb-tables-filter</code> </p>
 	<div class="row">
 		<div class="col-md-3">
 			<h4 class="wb-inv">Options</h4>
@@ -1108,14 +1108,27 @@
 								<li class="checkbox"><label for="dt_location13"><input type="checkbox" id="dt_location13" name="dt_location" data-column="5" value="Prince Edward Island"/> Prince Edward Island</label></li>
 							</ul>
 						</fieldset>
+						<details>
+							<summary><h6>Advanced Options</h6></summary>
+							<div class="radio">
+								<label for="advanced_options1_1"><input type="radio" name="advanced_options1" id="advanced_options1_1" data-aopts='{"type": "any", "column": "5"}' checked />Any</label>
+							</div>
+							<div class="radio">
+								<label for="advanced_options1_2"><input type="radio" name="advanced_options1" id="advanced_options1_2" data-aopts='{"type": "both", "column": "5"}' />Both</label>
+							</div>
+							<div class="radio">
+								<label for="advanced_options1_3"><input type="radio" name="advanced_options1" id="advanced_options1_3" data-aopts='{"type": "either", "column": "5"}' />Either</label>
+							</div>
+							<div class="radio">
+								<label for="advanced_options1_4"><input type="radio" name="advanced_options1" id="advanced_options1_4" data-aopts='{"type": "and", "column": "5"}' />And</label>
+							</div>
+						</details>
 					</div>
-					<div class="row">
-						<div class="col-xs-6">
-							<button type="submit" class="btn btn-primary" aria-controls="dataset-filter">Filter</button>
-						</div>
-						<div class="col-xs-6">
-							<button type="reset" class="btn btn-default">Clear</button>
-						</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary" aria-controls="dataset-filter">Filter</button>
+					</div>
+					<div class="form-group">
+						<button type="reset" class="btn btn-link btn-sm p-0">Réinitialiser aux valeurs par défaut</button>
 					</div>
 				</form>
 			</details>

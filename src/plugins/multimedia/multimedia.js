@@ -60,6 +60,47 @@ var componentName = "wb-mltmd",
 
 			// Only initialize the i18nText once
 			if ( !i18nText ) {
+
+				// YT workaround for when played inside a modal dialog, like with lightbox
+				//
+				// the issue is when the iFrame is moved, it reloads and then it doesn't emit the right event to
+				// adjust the WET multimedia controller to represent its current state.
+				//
+				// This needs to be executed only once, that is why it is in the i18nText conditional
+				window.addEventListener( "message", function( e ) {
+					var data, frames, i, i_len, i_cache;
+
+					// Ensure we don't conflict with other postMessage listener
+					try {
+						data = JSON.parse( e.data );
+
+						// Only for a specific YT message
+						if ( data.event && data.event === "infoDelivery" && data.info && data.info.playerState ) {
+
+							// Find the iFrame and evaluate if it needs to be reposted
+							frames = document.getElementsByTagName( "iframe" );
+
+							i_len = frames.length;
+							for ( i = 0; i < i_len; i++ ) {
+								i_cache = frames[ i ];
+								if ( i_cache.dataset.L2 && i_cache.contentWindow === e.source  ) {
+
+									// Prepare the event data and emulate the YT object for our event management need
+									youTubeEvents.call( i_cache, {
+										target: i_cache.parentElement.parentElement.object,
+										data: data.info.playerState
+									} );
+									break;
+								}
+							}
+						}
+					} catch ( err ) { }
+				} );
+
+				//
+				// END YT workaround
+				//
+
 				i18n = wb.i18n;
 				i18nText = {
 					play: i18n( "mmp-play" ),
@@ -335,7 +376,7 @@ var componentName = "wb-mltmd",
 
 		// added &#160; (non-breaking space) to prevent caption space from collapsing
 		// Used .html() instead of .append for performance purposes
-		// http://jsperf.com/jquery-append-vs-html-list-performance/2
+		// https://jsperf.com/jquery-append-vs-html-list-performance/2
 		area.html( "&#160;" );
 
 		for ( i = 0; i < captionsLength; i += 1 ) {
@@ -485,7 +526,8 @@ var componentName = "wb-mltmd",
 			$media = $( media ),
 			timeline = function() {
 				$media.trigger( "timeupdate" );
-			};
+			},
+			$mltmPlayerElm;
 
 		switch ( event.data ) {
 		case null:
@@ -502,6 +544,12 @@ var componentName = "wb-mltmd",
 			media.timeline = clearInterval( media.timeline );
 			break;
 		case 1:
+			if ( media.dataset.L2 ) {
+
+				// Reset the close caption state when iframe was reloaded
+				$mltmPlayerElm = $media.parentsUntil( selector ).parent();
+				youTubeApi.call( $mltmPlayerElm.get( 0 ), "setCaptionsVisible", $mltmPlayerElm.hasClass( captionClass ) );
+			}
 			$media
 				.trigger( "canplay" )
 				.trigger( "play" )
@@ -662,6 +710,22 @@ $document.on( youtubeEvent, selector, function( event, data ) {
 		data.media = $media;
 		data.ytPlayer = ytPlayer;
 
+		// Detect if the YT player reloads, like when magnific Popup show the modal, because it moves the iframe
+		// and then the iframe gets refreshed and reloaded. So the issue is that the iframe stops emitting the event
+		// needed to adjust the multimedia player controler, like the "onStateChange" event.
+		$media.on( "load", function( evt ) {
+
+			var elm = evt.currentTarget,
+				ds = elm.dataset;
+
+			// Do nothing on the first load and add a flag to indicate it is loaded a second time
+			if ( ds.L1 ) {
+				ds.L2 = true;
+			} else {
+				ds.L1 = true;
+			}
+		} );
+
 		$this.trigger( renderUIEvent, [ "youtube", data ] );
 	}
 } );
@@ -737,7 +801,7 @@ $document.on( "click", selector, function( event ) {
 
 	// Optimized multiple class tests to include child glyphicon because Safari was reporting the click event
 	// from the child span not the parent button, forcing us to have to check for both elements
-	// JSPerf for multiple class matching http://jsperf.com/hasclass-vs-is-stackoverflow/7
+	// JSPerf for multiple class matching https://jsperf.com/hasclass-vs-is-stackoverflow/7
 	if ( className.match( /playpause|-play|-pause|display/ ) || $target.is( "object" ) || $target.is( "video" ) ) {
 		this.player( "getPaused" ) || this.player( "getEnded" ) ? this.player( "play" ) : this.player( "pause" );
 	} else if ( className.match( /\bcc\b|-subtitles/ )  ) {
@@ -824,6 +888,13 @@ $document.on( "keyup", ctrls, function( event ) {
 
 $document.on( "wb-activate", selector, function() {
 	this.player( "play" );
+} );
+
+$document.on( "closed.wb-overlay", ".wb-overlay", function( event ) {
+	var mltmdPlayer = event.currentTarget.querySelector( selector );
+	if ( mltmdPlayer ) {
+		mltmdPlayer.player( "pause" );
+	}
 } );
 
 $document.on( multimediaEvents, selector, function( event, simulated ) {

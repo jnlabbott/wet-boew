@@ -128,7 +128,7 @@ var componentName = "wb-tables",
 $document.on( "timerpoke.wb " + initEvent, selector, init );
 
 // Handle the draw.dt event
-$document.on( "init.dt draw.dt", selector, function( event, settings ) {
+$document.on( "draw.dt", selector, function( event, settings ) {
 	var $elm = $( event.target ),
 		pagination = $elm.next( ".bottom" ).find( "div:first-child" ),
 		paginate_buttons = $elm.next( ".bottom" ).find( ".paginate_button" ),
@@ -158,9 +158,16 @@ $document.on( "init.dt draw.dt", selector, function( event, settings ) {
 		// Should be pushed upstream to DataTables
 		$elm.next( ".bottom" ).find( ".paginate_button" )
 			.attr( {
-				"role": "button",
-				"href": "javascript:;"
+				"href": "#" + $elm.context.id
 			} )
+
+			// This is required to override the datatable.js (v1.10.13) behavior to cancel the event propagation on anchor element.
+			.on( "keypress", function( evn ) {
+				if ( evn.keyCode === 13 ) {
+					window.location = evn.target.href;
+				}
+			} )
+
 			.not( ".previous, .next" )
 				.attr( "aria-pressed", "false" )
 				.html( function( index, oldHtml ) {
@@ -170,14 +177,13 @@ $document.on( "init.dt draw.dt", selector, function( event, settings ) {
 					.attr( "aria-pressed", "true" );
 	}
 
-	if ( event.type === "init" ) {
-
-		// Identify that initialization has completed
-		wb.ready( $elm, componentName );
-	}
-
 	// Identify that the table has been updated
 	$elm.trigger( "wb-updated" + selector, [ settings ] );
+} );
+
+// Identify that initialization has completed
+$document.on( "init.dt", function( event ) {
+	wb.ready( $( event.target ), componentName );
 } );
 
 // Handle the draw.dt event
@@ -188,34 +194,80 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 	var $form = $( this ),
 		$datatable = $( "#" + $form.data( "bind-to" ) ).dataTable( { "retrieve": true } ).api();
 
-	// Lets reset the search;
-	$datatable.search( "" ).columns().search( "" );
+	// Lets reset the search
+	$datatable.search( "" ).columns().search( "" ).draw();
 
 	// Lets loop throug all options
-	var $value = "", $lastColumn = -1;
+	var $lastColumn = -1, $cbVal = "";
 	$form.find( "[name]" ).each( function() {
 		var $elm = $( this ),
+			$value = "",
+			$regex = "",
+			$isAopts = $elm.data( "aopts" ),
 			$column = parseInt( $elm.attr( "data-column" ), 10 );
 
+		// Ignore the advanced options fields
+		if ( $isAopts ) {
+			return;
+		}
+
+		// Filters based on input type
 		if ( $elm.is( "select" ) ) {
 			$value = $elm.find( "option:selected" ).val();
 		} else if ( $elm.is( ":checkbox" ) ) {
-			if ( $column !== $lastColumn && $lastColumn !== -1 ) {
-				$value = "";
+
+			// Verifies if using same checkbox list
+			if ( $column !== $lastColumn || $lastColumn === -1 ) {
+				$cbVal = "";
 			}
 			$lastColumn = $column;
 
+			// Verifies if checkbox is checked before setting value
 			if ( $elm.is( ":checked" ) ) {
-				$value += ( $value.length > 0 ) ? "|" : "";
-				$value += $elm.val();
+				var $aoptsSelector = "[data-aopts*='\"column\": \"" + $column + "\"']:checked",
+					$aopts = $( $aoptsSelector ),
+					$aoType = ( $aopts && $aopts.data( "aopts" ) ) ? $aopts.data( "aopts" ).type.toLowerCase() : "";
+
+				if ( $aoType === "both" ) {
+					$cbVal += "(?=.*\\b" + $elm.val() + "\\b)";
+				} else {
+					$cbVal += ( $cbVal.length > 0 ) ? "|" : "";
+					$cbVal += $elm.val();
+				}
+
+				$value = $cbVal;
+				$value = $value.replace( /\s/g, "\\s*" );
+
+				// Adjust regex based on advanced options
+				switch ( $aoType ) {
+				case "both":
+					$regex = "(" + $value + ").*";
+					break;
+				case "either":
+					$regex = "^(" + $value + ")$";
+					break;
+				case "and":
+					$regex = ( $value.indexOf( "|" ) > -1 ) ? "^(" + $value + "|[,\\s])(" + $value + "|[,\\s])+$" : "(" + $value + ")";
+					break;
+				case "any":
+				default:
+					$regex = "(" + $value + ")";
+					break;
+				}
 			}
 		} else {
 			$value = $elm.val();
 		}
 
 		if ( $value ) {
-			$value = $value.replace( /\s/g, "\\s*" );
-			$datatable.column( $column ).search( "(" + $value + ")", true ).draw();
+
+			// Verifies if regex was preset, if not preset use 'contains value' as default
+			if ( !$regex ) {
+				$value = $value.replace( /\s/g, "\\s*" );
+				$regex = "(" + $value + ")";
+			}
+
+			$datatable.column( $column ).search( $regex, true ).draw();
 		}
 	} );
 
@@ -232,6 +284,7 @@ $document.on( "click", ".wb-tables-filter [type='reset']", function( event ) {
 
 	$form.find( "select" ).prop( "selectedIndex", 0 );
 	$form.find( "input:checkbox" ).prop( "checked", false );
+	$form.find( "input:radio" ).prop( "checked", false );
 	$form.find( "input[type=date]" ).val( "" );
 
 	return false;
